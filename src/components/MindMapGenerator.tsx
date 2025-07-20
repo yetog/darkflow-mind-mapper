@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
 import { toPng } from 'html-to-image';
@@ -5,37 +6,27 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { MindMapControls } from '@/components/mind-map-controls';
+import { NodeDetails } from '@/components/node-details';
 import { 
-  Download, 
   Loader2, 
-  Globe, 
-  Youtube, 
-  MessageSquare,
   Sparkles,
   Brain
 } from 'lucide-react';
-
-interface NodeDetails {
-  id: string;
-  label: string;
-  description: string;
-  children?: string[];
-}
-
-interface MindMapData {
-  nodes: NodeDetails[];
-  mermaidCode: string;
-}
+import { determineInputType, getPlaceholder, InputType } from '@/utils/input-detection';
+import { generateMindMap, NodeData, MindMapResponse } from '@/services/langflow-api';
 
 const MindMapGenerator = () => {
-  const [inputType, setInputType] = useState<'url' | 'youtube' | 'prompt'>('url');
-  const [inputValue, setInputValue] = useState('');
+  const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [mindMapData, setMindMapData] = useState<MindMapData | null>(null);
-  const [selectedNode, setSelectedNode] = useState<NodeDetails | null>(null);
+  const [mindMapData, setMindMapData] = useState<MindMapResponse | null>(null);
+  const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
+  const [detectedInputType, setDetectedInputType] = useState<InputType>('PROMPT');
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  
   const mindMapRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -59,8 +50,18 @@ const MindMapGenerator = () => {
     });
   }, []);
 
-  const generateMindMap = async () => {
-    if (!inputValue.trim()) {
+  // Auto-detect input type
+  useEffect(() => {
+    if (input.trim()) {
+      const detectedType = determineInputType(input);
+      setDetectedInputType(detectedType);
+    }
+  }, [input]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!input.trim()) {
       toast({
         title: "Input Required",
         description: "Please enter a URL, YouTube link, or text prompt.",
@@ -72,28 +73,23 @@ const MindMapGenerator = () => {
     setIsLoading(true);
     
     try {
-      // Mock API call - replace with actual Langflow API endpoints
-      const apiEndpoint = getApiEndpoint();
+      console.log('Generating mind map for:', input, 'Type:', detectedInputType);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock response data
-      const mockMindMapData = generateMockMindMap(inputValue);
-      setMindMapData(mockMindMapData);
+      const data = await generateMindMap(input, detectedInputType);
+      setMindMapData(data);
 
       // Render the Mermaid diagram
-      if (mindMapRef.current) {
-        mindMapRef.current.innerHTML = `<div class="mermaid">${mockMindMapData.mermaidCode}</div>`;
+      if (mindMapRef.current && data.mermaidSyntax) {
+        mindMapRef.current.innerHTML = `<div class="mermaid">${data.mermaidSyntax}</div>`;
         await mermaid.run();
         
         // Add click handlers to nodes
-        addNodeClickHandlers(mockMindMapData.nodes);
+        addNodeClickHandlers(data.nodes);
       }
 
       toast({
-        title: "Mind Map Generated!",
-        description: "Your interactive mind map is ready to explore.",
+        title: "Success!",
+        description: "Mind map generated successfully!",
       });
 
     } catch (error) {
@@ -108,107 +104,33 @@ const MindMapGenerator = () => {
     }
   };
 
-  const getApiEndpoint = () => {
-    const endpoints = {
-      url: 'http://127.0.0.1:7860/api/v1/run/1e9960df-6b9d-48eb-81c2-26af9e877f50?stream=false',
-      youtube: 'http://127.0.0.1:7860/api/v1/run/13b817f9-1478-4f5a-8775-c6f4de8019e7?stream=false',
-      prompt: 'http://127.0.0.1:7860/api/v1/run/f6081c11-6dc9-4941-8598-f21f97d94e4c?stream=false'
-    };
-    return endpoints[inputType];
-  };
-
-  const generateMockMindMap = (input: string): MindMapData => {
-    // Generate mock mind map based on input
-    const nodes: NodeDetails[] = [
-      {
-        id: 'A',
-        label: 'Central Topic',
-        description: `Main concept derived from: ${input.substring(0, 50)}...`,
-        children: ['B', 'C', 'D']
-      },
-      {
-        id: 'B',
-        label: 'Key Concept 1',
-        description: 'First major branch exploring fundamental aspects',
-        children: ['E', 'F']
-      },
-      {
-        id: 'C',
-        label: 'Key Concept 2',
-        description: 'Second major branch diving into important details',
-        children: ['G', 'H']
-      },
-      {
-        id: 'D',
-        label: 'Key Concept 3',
-        description: 'Third major branch covering additional perspectives',
-        children: ['I', 'J']
-      },
-      {
-        id: 'E',
-        label: 'Sub-topic 1.1',
-        description: 'Detailed exploration of the first sub-concept'
-      },
-      {
-        id: 'F',
-        label: 'Sub-topic 1.2',
-        description: 'Further analysis of related themes'
-      },
-      {
-        id: 'G',
-        label: 'Sub-topic 2.1',
-        description: 'In-depth examination of secondary concepts'
-      },
-      {
-        id: 'H',
-        label: 'Sub-topic 2.2',
-        description: 'Additional insights and connections'
-      },
-      {
-        id: 'I',
-        label: 'Sub-topic 3.1',
-        description: 'Comprehensive analysis of tertiary elements'
-      },
-      {
-        id: 'J',
-        label: 'Sub-topic 3.2',
-        description: 'Final perspectives and conclusions'
-      }
-    ];
-
-    const mermaidCode = `
-      mindmap
-        root((${nodes[0].label}))
-          ${nodes[1].label}
-            ${nodes[4].label}
-            ${nodes[5].label}
-          ${nodes[2].label}
-            ${nodes[6].label}
-            ${nodes[7].label}
-          ${nodes[3].label}
-            ${nodes[8].label}
-            ${nodes[9].label}
-    `;
-
-    return { nodes, mermaidCode };
-  };
-
-  const addNodeClickHandlers = (nodes: NodeDetails[]) => {
-    // Add click event listeners to mind map nodes
+  const addNodeClickHandlers = (nodes: NodeData[]) => {
     setTimeout(() => {
-      const nodeElements = document.querySelectorAll('.mindmap-node');
-      nodeElements.forEach((element, index) => {
-        element.addEventListener('click', () => {
-          if (nodes[index]) {
-            setSelectedNode(nodes[index]);
+      const nodeElements = mindMapRef.current?.querySelectorAll('[id*="flowchart-"]');
+      nodeElements?.forEach((element) => {
+        element.addEventListener('click', (e) => {
+          e.preventDefault();
+          const elementId = (element as HTMLElement).id;
+          const nodeId = elementId.split('-').slice(-1)[0];
+          const clickedNode = nodes.find(node => node.id === nodeId || node.label.includes(nodeId));
+          if (clickedNode) {
+            setSelectedNode(clickedNode);
+            console.log('Node clicked:', clickedNode);
           }
         });
         element.classList.add('mind-map-node');
       });
-    }, 500);
+    }, 1000);
   };
 
-  const downloadMindMap = async () => {
+  const zoomIn = () => setZoomLevel(prev => Math.min(prev + 0.1, 3));
+  const zoomOut = () => setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
+  const resetView = () => {
+    setZoomLevel(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const downloadImage = async () => {
     if (!mindMapRef.current) return;
 
     try {
@@ -219,7 +141,7 @@ const MindMapGenerator = () => {
       });
 
       const link = document.createElement('a');
-      link.download = 'mindmap.png';
+      link.download = `mindmap-${new Date().toISOString().slice(0, 10)}.png`;
       link.href = dataUrl;
       link.click();
 
@@ -237,39 +159,26 @@ const MindMapGenerator = () => {
     }
   };
 
-  const getInputIcon = () => {
-    switch (inputType) {
-      case 'url': return <Globe className="w-4 h-4" />;
-      case 'youtube': return <Youtube className="w-4 h-4" />;
-      case 'prompt': return <MessageSquare className="w-4 h-4" />;
-    }
-  };
-
-  const getInputPlaceholder = () => {
-    switch (inputType) {
-      case 'url': return 'Enter a URL to analyze...';
-      case 'youtube': return 'Enter a YouTube video URL...';
-      case 'prompt': return 'Enter your text or question...';
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="text-center space-y-4 animate-fade-in">
-          <div className="flex items-center justify-center gap-3 mb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <Brain className="w-10 h-10 text-primary" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
-              Mind Mapper
-            </h1>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
+                Mind Mapper
+              </h1>
+              <p className="text-muted-foreground">
+                Generate interactive mind maps from URLs, YouTube videos, or text prompts using AI
+              </p>
+            </div>
           </div>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Generate interactive mind maps from URLs, YouTube videos, or text prompts using AI
-          </p>
+          <ThemeToggle />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Input Panel */}
           <div className="lg:col-span-1 space-y-6 animate-slide-up">
             <Card className="glass-card p-6 space-y-6">
@@ -278,117 +187,82 @@ const MindMapGenerator = () => {
                 <h2 className="text-xl font-semibold">Generate Mind Map</h2>
               </div>
 
-              <Tabs value={inputType} onValueChange={(value) => setInputType(value as any)}>
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="url" className="flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    URL
-                  </TabsTrigger>
-                  <TabsTrigger value="youtube" className="flex items-center gap-2">
-                    <Youtube className="w-4 h-4" />
-                    YouTube
-                  </TabsTrigger>
-                  <TabsTrigger value="prompt" className="flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4" />
-                    Prompt
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value={inputType} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      {getInputIcon()}
-                      Input
-                    </Label>
-                    <Input
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      placeholder={getInputPlaceholder()}
-                      className="glass-card"
-                    />
-                  </div>
-
-                  <Button 
-                    onClick={generateMindMap}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>
+                    Input ({detectedInputType})
+                  </Label>
+                  <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={getPlaceholder(detectedInputType)}
+                    className="glass-card"
                     disabled={isLoading}
-                    variant="premium"
-                    size="lg"
-                    className="w-full"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4" />
-                        Generate Mind Map
-                      </>
-                    )}
-                  </Button>
-                </TabsContent>
-              </Tabs>
+                  />
+                </div>
+
+                <Button 
+                  type="submit"
+                  disabled={isLoading || !input.trim()}
+                  variant="premium"
+                  size="lg"
+                  className="w-full"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Generate Mind Map
+                    </>
+                  )}
+                </Button>
+              </form>
             </Card>
 
             {/* Node Details */}
-            {selectedNode && (
-              <Card className="glass-card p-6 space-y-4 animate-fade-in">
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{selectedNode.id}</Badge>
-                  <h3 className="font-semibold">{selectedNode.label}</h3>
-                </div>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {selectedNode.description}
-                </p>
-                {selectedNode.children && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">Connected to:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {selectedNode.children.map(childId => (
-                        <Badge key={childId} variant="outline" className="text-xs">
-                          {childId}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </Card>
-            )}
+            <NodeDetails node={selectedNode} />
           </div>
 
           {/* Mind Map Display */}
-          <div className="lg:col-span-2 space-y-6 animate-slide-up">
+          <div className="lg:col-span-3 space-y-6 animate-slide-up">
             <Card className="glass-card p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="space-y-4">
                 <h2 className="text-xl font-semibold">Interactive Mind Map</h2>
+                
                 {mindMapData && (
-                  <Button 
-                    onClick={downloadMindMap}
-                    variant="glass"
-                    size="sm"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download PNG
-                  </Button>
-                )}
-              </div>
-
-              <div className="min-h-[500px] flex items-center justify-center">
-                {!mindMapData ? (
-                  <div className="text-center space-y-4">
-                    <Brain className="w-16 h-16 text-muted-foreground mx-auto opacity-50" />
-                    <p className="text-muted-foreground">
-                      Your mind map will appear here after generation
-                    </p>
-                  </div>
-                ) : (
-                  <div 
-                    ref={mindMapRef}
-                    className="w-full h-full min-h-[500px] flex items-center justify-center"
-                    style={{ backgroundColor: 'transparent' }}
+                  <MindMapControls
+                    onZoomIn={zoomIn}
+                    onZoomOut={zoomOut}
+                    onReset={resetView}
+                    onDownload={downloadImage}
+                    zoomLevel={zoomLevel}
                   />
                 )}
+
+                <div className="min-h-[600px] flex items-center justify-center border border-border rounded-md">
+                  {!mindMapData ? (
+                    <div className="text-center space-y-4">
+                      <Brain className="w-16 h-16 text-muted-foreground mx-auto opacity-50" />
+                      <p className="text-muted-foreground">
+                        Your mind map will appear here after generation
+                      </p>
+                    </div>
+                  ) : (
+                    <div 
+                      ref={mindMapRef}
+                      className="w-full h-full min-h-[600px] flex items-center justify-center overflow-auto"
+                      style={{ 
+                        backgroundColor: 'transparent',
+                        transform: `scale(${zoomLevel}) translate(${position.x}px, ${position.y}px)`,
+                        transformOrigin: 'center'
+                      }}
+                    />
+                  )}
+                </div>
               </div>
             </Card>
           </div>
