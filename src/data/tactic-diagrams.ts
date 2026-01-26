@@ -218,6 +218,120 @@ export const TACTIC_DIAGRAMS: TacticDiagram[] = [
       { id: 'e4-5', source: '4', target: '5' },
     ],
   },
+
+  // Downfall - Falling/inverted arc (opposite of Rags to Riches)
+  {
+    tacticId: 'downfall',
+    shape: 'arc',
+    nodes: [
+      { id: '1', label: 'Heights', description: 'Initial success and power', position: { x: 0, y: 0 }, type: 'start' },
+      { id: '2', label: 'Pride', description: 'Fatal flaw emerges', position: { x: 150, y: 50 }, type: 'middle' },
+      { id: '3', label: 'The Mistake', description: 'Critical error', position: { x: 300, y: 100 }, type: 'peak' },
+      { id: '4', label: 'The Fall', description: 'Consequences unfold', position: { x: 450, y: 150 }, type: 'middle' },
+      { id: '5', label: 'Rock Bottom', description: 'Final loss', position: { x: 600, y: 200 }, type: 'low' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2', label: 'Overconfidence' },
+      { id: 'e2-3', source: '2', target: '3' },
+      { id: 'e3-4', source: '3', target: '4' },
+      { id: 'e4-5', source: '4', target: '5', label: 'Inevitable' },
+    ],
+  },
+
+  // The Quest - Linear journey with milestone markers
+  {
+    tacticId: 'the-quest',
+    shape: 'linear',
+    nodes: [
+      { id: '1', label: 'The Call', description: 'Mission emerges', position: { x: 0, y: 100 }, type: 'start' },
+      { id: '2', label: 'Journey Begins', description: 'Leave the familiar', position: { x: 150, y: 100 }, type: 'middle' },
+      { id: '3', label: 'Challenges & Allies', description: 'Face obstacles, find help', position: { x: 300, y: 100 }, type: 'middle' },
+      { id: '4', label: 'The Ordeal', description: 'Ultimate test', position: { x: 450, y: 100 }, type: 'peak' },
+      { id: '5', label: 'The Reward', description: 'Achievement or lesson', position: { x: 600, y: 100 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2', animated: true },
+      { id: 'e2-3', source: '2', target: '3', animated: true },
+      { id: 'e3-4', source: '3', target: '4', animated: true },
+      { id: 'e4-5', source: '4', target: '5', animated: true },
+    ],
+  },
+
+  // Overcoming The Monster - Hub with central threat
+  {
+    tacticId: 'overcoming-the-monster',
+    shape: 'hub',
+    nodes: [
+      { id: '1', label: 'The Monster', description: 'The central threat', position: { x: 250, y: 150 }, type: 'low' },
+      { id: '2', label: 'The Danger', description: 'What harm it causes', position: { x: 50, y: 50 }, type: 'branch' },
+      { id: '3', label: 'The Call', description: 'Why we must fight', position: { x: 450, y: 50 }, type: 'branch' },
+      { id: '4', label: 'The Battle', description: 'Strategy and struggle', position: { x: 50, y: 250 }, type: 'branch' },
+      { id: '5', label: 'Victory', description: 'Monster defeated', position: { x: 450, y: 250 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' },
+      { id: 'e1-3', source: '1', target: '3' },
+      { id: 'e1-4', source: '1', target: '4' },
+      { id: 'e4-5', source: '4', target: '5', label: 'Triumph', animated: true },
+    ],
+  },
+
+  // Comedy - Rising chaos then falling to resolution (inverted U pattern)
+  {
+    tacticId: 'comedy',
+    shape: 'arc',
+    nodes: [
+      { id: '1', label: 'Normal World', description: 'Things seem fine', position: { x: 0, y: 150 }, type: 'start' },
+      { id: '2', label: 'Confusion', description: 'Misunderstandings begin', position: { x: 150, y: 100 }, type: 'middle' },
+      { id: '3', label: 'Escalating Chaos', description: 'Peak of confusion', position: { x: 300, y: 50 }, type: 'peak' },
+      { id: '4', label: 'The Reveal', description: 'Truth comes out', position: { x: 450, y: 100 }, type: 'middle' },
+      { id: '5', label: 'Resolution', description: 'Everyone laughs', position: { x: 600, y: 150 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' },
+      { id: 'e2-3', source: '2', target: '3', label: 'Complications' },
+      { id: 'e3-4', source: '3', target: '4' },
+      { id: 'e4-5', source: '4', target: '5', label: 'Happy Ending' },
+    ],
+  },
+
+  // Tragedy - Descending arc from nobility to fall
+  {
+    tacticId: 'tragedy',
+    shape: 'arc',
+    nodes: [
+      { id: '1', label: 'Noble Beginning', description: 'Admirable protagonist', position: { x: 0, y: 0 }, type: 'start' },
+      { id: '2', label: 'Fatal Flaw', description: 'Weakness revealed', position: { x: 150, y: 40 }, type: 'middle' },
+      { id: '3', label: 'Rising Action', description: 'Choices compound', position: { x: 300, y: 80 }, type: 'middle' },
+      { id: '4', label: 'Point of No Return', description: 'Fate sealed', position: { x: 450, y: 140 }, type: 'peak' },
+      { id: '5', label: 'The Fall', description: 'Loss with meaning', position: { x: 600, y: 200 }, type: 'low' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' },
+      { id: 'e2-3', source: '2', target: '3' },
+      { id: 'e3-4', source: '3', target: '4', label: 'Inevitable' },
+      { id: 'e4-5', source: '4', target: '5' },
+    ],
+  },
+
+  // Rebirth - V-shape descending into darkness, then rising to light
+  {
+    tacticId: 'rebirth',
+    shape: 'arc',
+    nodes: [
+      { id: '1', label: 'Under A Shadow', description: 'Trapped in darkness', position: { x: 0, y: 50 }, type: 'start' },
+      { id: '2', label: 'Worsening', description: 'Darkness deepens', position: { x: 150, y: 150 }, type: 'middle' },
+      { id: '3', label: 'The Catalyst', description: 'Spark of change', position: { x: 300, y: 200 }, type: 'low' },
+      { id: '4', label: 'The Struggle', description: 'Fighting to break free', position: { x: 450, y: 100 }, type: 'middle' },
+      { id: '5', label: 'Emergence', description: 'Reborn into light', position: { x: 600, y: 0 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' },
+      { id: 'e2-3', source: '2', target: '3', label: 'Rock Bottom' },
+      { id: 'e3-4', source: '3', target: '4', label: 'Transformation' },
+      { id: 'e4-5', source: '4', target: '5', animated: true },
+    ],
+  },
 ];
 
 // Get diagram for a specific tactic
