@@ -5,8 +5,10 @@ import Header from '@/components/layout/Header';
 import MindMapView from '@/components/views/MindMapView';
 import TimelineView from '@/components/views/TimelineView';
 import CarouselView from '@/components/views/CarouselView';
-import TacticsBrowser from '@/components/tactics/TacticsBrowser';
+import TacticsFullView from '@/components/tactics/TacticsFullView';
+import VocabBrowser from '@/components/vocab/VocabBrowser';
 import CoachPanel from '@/components/coach/CoachPanel';
+import VoiceCoach from '@/components/coach/VoiceCoach';
 import WelcomeModal from '@/components/WelcomeModal';
 import PracticeMode from '@/components/practice/PracticeMode';
 import ProgressDashboard from '@/components/progress/ProgressDashboard';
@@ -19,8 +21,8 @@ const ConvoFlowApp = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeView, setActiveView] = useState<ViewMode>('mindmap');
   const [activeSection, setActiveSection] = useState<AppSection>('plan');
-  const [showTactics, setShowTactics] = useState(false);
   const [showCoach, setShowCoach] = useState(false);
+  const [showVoiceCoach, setShowVoiceCoach] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   
   // Current plan state
@@ -129,6 +131,16 @@ const ConvoFlowApp = () => {
     setActiveSection(section);
   };
 
+  const handleApplyTacticToMindMap = (nodes: ConversationNode[]) => {
+    // Add tactic nodes to the current plan
+    setCurrentPlan(prev => ({
+      ...prev,
+      nodes: [...prev.nodes, ...nodes],
+      updatedAt: new Date(),
+    }));
+    setActiveSection('plan');
+  };
+
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'dashboard':
@@ -139,6 +151,16 @@ const ConvoFlowApp = () => {
         return <LessonsBrowser onOpenFearModule={handleOpenFearModule} />;
       case 'fear-module':
         return <FearModule />;
+      case 'tactics':
+        return (
+          <TacticsFullView 
+            conversationType={currentPlan.type}
+            onApplyToMindMap={handleApplyTacticToMindMap}
+            onStartPractice={() => setActiveSection('practice')}
+          />
+        );
+      case 'vocabulary':
+        return <VocabBrowser />;
       case 'plan':
       default:
         return renderActiveView();
@@ -184,6 +206,10 @@ const ConvoFlowApp = () => {
         return 'Lessons';
       case 'fear-module':
         return 'Overcome Fear';
+      case 'tactics':
+        return 'Story Tactics';
+      case 'vocabulary':
+        return 'Vocabulary & Phrases';
       case 'plan':
       default:
         return currentPlan.title;
@@ -206,7 +232,7 @@ const ConvoFlowApp = () => {
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         activeView={activeView}
         onViewChange={setActiveView}
-        onOpenTactics={() => setShowTactics(true)}
+        onOpenTactics={() => setActiveSection('tactics')}
         onOpenCoach={() => setShowCoach(true)}
         onNewPlan={handleNewPlan}
         currentType={currentPlan.type}
@@ -243,15 +269,6 @@ const ConvoFlowApp = () => {
         </main>
       </div>
 
-      {/* Tactics Browser Sheet */}
-      <Sheet open={showTactics} onOpenChange={setShowTactics}>
-        <SheetContent side="right" className="w-full sm:max-w-xl p-0">
-          <TacticsBrowser 
-            conversationType={currentPlan.type}
-            onClose={() => setShowTactics(false)}
-          />
-        </SheetContent>
-      </Sheet>
 
       {/* AI Coach Panel Sheet */}
       <Sheet open={showCoach} onOpenChange={setShowCoach}>
