@@ -1,12 +1,14 @@
 // Motivating Statistics for ConvoFlow - From Public Speaking 101 Guide
 
+import { IconName } from '@/components/ui/dynamic-icon';
+
 export interface SpeakingStat {
   id: string;
   value: string;
   label: string;
   description: string;
   source?: string;
-  icon: string;
+  iconName: IconName;
   color: string;
 }
 
@@ -17,7 +19,7 @@ export const SPEAKING_STATS: SpeakingStat[] = [
     label: 'Fear Public Speaking',
     description: 'Over 73% of people experience fear of public speaking (glossophobia)',
     source: 'Research studies',
-    icon: '😰',
+    iconName: 'AlertTriangle',
     color: 'amber',
   },
   {
@@ -25,7 +27,7 @@ export const SPEAKING_STATS: SpeakingStat[] = [
     value: '#1',
     label: 'Top Fear',
     description: 'Public speaking ranks as the #1 fear worldwide, ahead of death and spiders',
-    icon: '🏆',
+    iconName: 'Trophy',
     color: 'red',
   },
   {
@@ -33,7 +35,7 @@ export const SPEAKING_STATS: SpeakingStat[] = [
     value: '65%',
     label: 'Visual + Verbal Retention',
     description: 'People remember 65% of verbal AND visual data vs only 10% of verbal alone after 3 days',
-    icon: '🧠',
+    iconName: 'Brain',
     color: 'blue',
   },
   {
@@ -41,7 +43,7 @@ export const SPEAKING_STATS: SpeakingStat[] = [
     value: '10%',
     label: 'Verbal Only Retention',
     description: 'Without visuals, audiences only remember 10% of what you say after 3 days',
-    icon: '💭',
+    iconName: 'MessageCircle',
     color: 'gray',
   },
   {
@@ -50,7 +52,7 @@ export const SPEAKING_STATS: SpeakingStat[] = [
     label: 'Nonverbal Communication',
     description: 'Your nonverbal communication conveys 80% of your message',
     source: 'Sylvie di Giusto',
-    icon: '🙌',
+    iconName: 'Hand',
     color: 'purple',
   },
   {
@@ -59,7 +61,7 @@ export const SPEAKING_STATS: SpeakingStat[] = [
     label: 'Audience Memory',
     description: 'Your audience will only remember 20% of what you say - make it the right 20%',
     source: 'Richard Foster-Fletcher',
-    icon: '🎯',
+    iconName: 'Target',
     color: 'teal',
   },
   {
@@ -68,7 +70,7 @@ export const SPEAKING_STATS: SpeakingStat[] = [
     label: 'Most Wanted Skill',
     description: 'Communication is the #1 soft skill employers want according to LinkedIn',
     source: 'LinkedIn Study',
-    icon: '💼',
+    iconName: 'Briefcase',
     color: 'green',
   },
   {
@@ -77,7 +79,7 @@ export const SPEAKING_STATS: SpeakingStat[] = [
     label: 'Grace Period',
     description: 'The audience gives you a 30-60 second grace period at the start - use it wisely',
     source: 'Pamela Slim',
-    icon: '⏱️',
+    iconName: 'Timer',
     color: 'orange',
   },
   {
@@ -85,7 +87,7 @@ export const SPEAKING_STATS: SpeakingStat[] = [
     value: '3+',
     label: 'Practice Runs Needed',
     description: 'Run through your speech at least 3 times before going on stage',
-    icon: '🔄',
+    iconName: 'RefreshCw',
     color: 'indigo',
   },
   {
@@ -94,7 +96,7 @@ export const SPEAKING_STATS: SpeakingStat[] = [
     label: 'Rule of Three',
     description: 'Stick to 3 main points for maximum impact and audience retention',
     source: 'Alison Hadden',
-    icon: '✨',
+    iconName: 'Sparkles',
     color: 'pink',
   },
 ];

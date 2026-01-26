@@ -14,6 +14,7 @@ import {
   BERKUN_FEAR_TRIGGERS,
 } from '@/data/fear-content';
 import BreathingExercise from '@/components/common/BreathingExercise';
+import DynamicIcon from '@/components/ui/dynamic-icon';
 import {
   Brain,
   Heart,
@@ -22,6 +23,8 @@ import {
   CheckCircle,
   ArrowRight,
   AlertCircle,
+  Star,
+  Check,
 } from 'lucide-react';
 
 interface FearModuleProps {
@@ -148,7 +151,9 @@ const FearModule: React.FC<FearModuleProps> = ({ onClose }) => {
                         key={cause.id}
                         className="flex gap-4 p-4 rounded-lg bg-muted/50"
                       >
-                        <div className="text-2xl">{cause.icon}</div>
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <DynamicIcon name={cause.iconName} size={24} className="text-primary" />
+                        </div>
                         <div>
                           <h5 className="font-medium">{cause.name}</h5>
                           <p className="text-sm text-muted-foreground">{cause.description}</p>
@@ -166,7 +171,9 @@ const FearModule: React.FC<FearModuleProps> = ({ onClose }) => {
                         key={trigger.id}
                         className="flex items-center gap-3 p-3 rounded-lg bg-destructive/10 border border-destructive/20"
                       >
-                        <span className="text-xl">{trigger.icon}</span>
+                        <div className="p-1.5 rounded-md bg-destructive/20">
+                          <DynamicIcon name={trigger.iconName} size={18} className="text-destructive" />
+                        </div>
                         <div>
                           <p className="font-medium text-sm">{trigger.name}</p>
                           <p className="text-xs text-muted-foreground">{trigger.description}</p>
@@ -206,7 +213,9 @@ const FearModule: React.FC<FearModuleProps> = ({ onClose }) => {
                         checked={selectedSymptoms.includes(symptom.id)}
                         onCheckedChange={() => toggleSymptom(symptom.id)}
                       />
-                      <span className="text-xl">{symptom.icon}</span>
+                      <div className="p-1.5 rounded-md bg-muted">
+                        <DynamicIcon name={symptom.iconName} size={18} className="text-muted-foreground" />
+                      </div>
                       <div className="flex-1">
                         <p className="font-medium text-sm">{symptom.name}</p>
                         <p className="text-xs text-muted-foreground">{symptom.description}</p>
@@ -252,13 +261,17 @@ const FearModule: React.FC<FearModuleProps> = ({ onClose }) => {
                     <div className="flex items-start gap-4">
                       <div
                         className={cn(
-                          'text-3xl p-2 rounded-lg',
+                          'p-3 rounded-lg',
                           completedSolutions.includes(solution.id)
                             ? 'bg-green-500/20'
                             : 'bg-muted'
                         )}
                       >
-                        {completedSolutions.includes(solution.id) ? '✅' : solution.icon}
+                        {completedSolutions.includes(solution.id) ? (
+                          <Check className="h-6 w-6 text-green-500" />
+                        ) : (
+                          <DynamicIcon name={solution.iconName} size={24} className="text-primary" />
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
@@ -358,7 +371,10 @@ const FearModule: React.FC<FearModuleProps> = ({ onClose }) => {
               {/* Visualization Exercise */}
               <Card className="md:col-span-2">
                 <CardHeader>
-                  <CardTitle className="text-lg">🌟 Visualization Exercise</CardTitle>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Star className="h-5 w-5 text-amber-500" />
+                    Visualization Exercise
+                  </CardTitle>
                   <CardDescription>
                     Close your eyes and imagine success
                   </CardDescription>
@@ -395,9 +411,14 @@ const FearModule: React.FC<FearModuleProps> = ({ onClose }) => {
                       }}
                       className="w-full"
                     >
-                      {completedSolutions.includes('visualize')
-                        ? '✅ Visualization Complete'
-                        : 'Mark Visualization Complete'}
+                      {completedSolutions.includes('visualize') ? (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          Visualization Complete
+                        </>
+                      ) : (
+                        'Mark Visualization Complete'
+                      )}
                     </Button>
                   </div>
                 </CardContent>

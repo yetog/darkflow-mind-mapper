@@ -1,5 +1,7 @@
 // Speech Types for ConvoFlow - Based on Public Speaking 101 Guide
 
+import { IconName } from '@/components/ui/dynamic-icon';
+
 export interface SpeechType {
   id: string;
   name: string;
@@ -7,7 +9,7 @@ export interface SpeechType {
   whenToUse: string[];
   keyTechniques: string[];
   examplePrompts: string[];
-  icon: string;
+  iconName: IconName;
   color: string;
 }
 
@@ -34,7 +36,7 @@ export const SPEECH_TYPES: SpeechType[] = [
       'Present quarterly sales data analysis',
       'Explain a new company policy',
     ],
-    icon: '📊',
+    iconName: 'BarChart3',
     color: 'blue',
   },
   {
@@ -59,7 +61,7 @@ export const SPEECH_TYPES: SpeechType[] = [
       'Advocate for a new initiative',
       'Persuade the team to adopt a new tool',
     ],
-    icon: '🎯',
+    iconName: 'Target',
     color: 'purple',
   },
   {
@@ -84,7 +86,7 @@ export const SPEECH_TYPES: SpeechType[] = [
       'Deliver a tribute to a retiring colleague',
       'Introduce a keynote speaker',
     ],
-    icon: '🎓',
+    iconName: 'GraduationCap',
     color: 'amber',
   },
   {
@@ -109,7 +111,7 @@ export const SPEECH_TYPES: SpeechType[] = [
       'Walk through a process step-by-step',
       'Teach a new skill to the team',
     ],
-    icon: '🔧',
+    iconName: 'Wrench',
     color: 'teal',
   },
   {
@@ -134,7 +136,7 @@ export const SPEECH_TYPES: SpeechType[] = [
       'Inspire employees at the start of the year',
       'Encourage students before exams',
     ],
-    icon: '🔥',
+    iconName: 'Flame',
     color: 'orange',
   },
   {
@@ -159,7 +161,7 @@ export const SPEECH_TYPES: SpeechType[] = [
       'Respond to a challenging question',
       'Give an update without notes',
     ],
-    icon: '⚡',
+    iconName: 'Zap',
     color: 'yellow',
   },
   {
@@ -184,7 +186,7 @@ export const SPEECH_TYPES: SpeechType[] = [
       'Debate a strategic direction',
       'Respond to criticism of your idea',
     ],
-    icon: '⚖️',
+    iconName: 'Scale',
     color: 'indigo',
   },
   {
@@ -209,7 +211,7 @@ export const SPEECH_TYPES: SpeechType[] = [
       'Give a structured 5-minute presentation',
       'Practice your thesis defense',
     ],
-    icon: '🏆',
+    iconName: 'Trophy',
     color: 'rose',
   },
   {
@@ -234,7 +236,7 @@ export const SPEECH_TYPES: SpeechType[] = [
       'Welcome remarks at a celebration',
       'Share memories at a birthday party',
     ],
-    icon: '🎉',
+    iconName: 'PartyPopper',
     color: 'pink',
   },
 ];

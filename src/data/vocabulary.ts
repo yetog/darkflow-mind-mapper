@@ -1,6 +1,8 @@
 // Vocabulary & Talking Points System
 // Imported from provided CSV with situational categorization
 
+import { IconName } from '@/components/ui/dynamic-icon';
+
 export type VocabCategory = 'business' | 'casual' | 'persuasion' | 'emotional' | 'humor';
 export type VocabSituation = 
   | 'frustration' 
@@ -20,7 +22,7 @@ export interface VocabPhrase {
   example: string;
   situation: VocabSituation;
   category: VocabCategory;
-  icon?: string;
+  iconName: IconName;
 }
 
 export const VOCAB_CATEGORIES: { id: VocabCategory; label: string; description: string; color: string }[] = [
@@ -39,7 +41,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "I've been tearing my hair out trying to figure out this budget problem.",
     situation: 'frustration',
     category: 'emotional',
-    icon: '😤',
+    iconName: 'Frown',
   },
   {
     id: 'ear-to-the-ground',
@@ -48,7 +50,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "Keep your ear to the ground for any new developments in the market.",
     situation: 'professional',
     category: 'business',
-    icon: '👂',
+    iconName: 'Ear',
   },
   {
     id: 'put-pin-in-it',
@@ -57,7 +59,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "Let's put a pin in that idea and come back to it after lunch.",
     situation: 'professional',
     category: 'business',
-    icon: '📌',
+    iconName: 'Pin',
   },
   {
     id: 'up-to-neck',
@@ -66,7 +68,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "I'm up to my neck in work this week, can we reschedule?",
     situation: 'frustration',
     category: 'business',
-    icon: '😰',
+    iconName: 'AlertTriangle',
   },
   {
     id: 'pour-heart-out',
@@ -75,7 +77,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "She poured her heart out during the presentation about her journey.",
     situation: 'emotional',
     category: 'emotional',
-    icon: '💝',
+    iconName: 'Heart',
   },
   {
     id: 'keep-chin-up',
@@ -84,7 +86,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "I know the project failed, but keep your chin up—we learned a lot.",
     situation: 'encouragement',
     category: 'emotional',
-    icon: '😊',
+    iconName: 'Smile',
   },
   {
     id: 'pity-party',
@@ -93,7 +95,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "Enough with the pity party—let's focus on solutions.",
     situation: 'casual',
     category: 'humor',
-    icon: '🎉',
+    iconName: 'PartyPopper',
   },
   {
     id: 'stab-in-dark',
@@ -102,7 +104,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "This is a stab in the dark, but I think we should try the new approach.",
     situation: 'casual',
     category: 'casual',
-    icon: '🎯',
+    iconName: 'Target',
   },
   {
     id: 'egg-on-face',
@@ -111,7 +113,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "He had egg on his face after presenting the wrong data.",
     situation: 'casual',
     category: 'humor',
-    icon: '🥚',
+    iconName: 'Egg',
   },
   {
     id: 'shoot-from-hip',
@@ -120,7 +122,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "I'm going to shoot from the hip here—I think we need to pivot.",
     situation: 'casual',
     category: 'casual',
-    icon: '🤠',
+    iconName: 'Crosshair',
   },
   {
     id: 'eat-for-breakfast',
@@ -129,7 +131,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "Complex negotiations? I eat those for breakfast.",
     situation: 'emphasis',
     category: 'persuasion',
-    icon: '🍳',
+    iconName: 'UtensilsCrossed',
   },
   {
     id: 'hard-pill-to-swallow',
@@ -138,7 +140,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "The budget cuts are a hard pill to swallow, but necessary.",
     situation: 'disagreement',
     category: 'emotional',
-    icon: '💊',
+    iconName: 'Pill',
   },
   {
     id: 'once-in-blue-moon',
@@ -147,7 +149,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "We only get opportunities like this once in a blue moon.",
     situation: 'emphasis',
     category: 'casual',
-    icon: '🌙',
+    iconName: 'Moon',
   },
   {
     id: 'pig-out',
@@ -156,7 +158,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "After the presentation, let's pig out at that new restaurant.",
     situation: 'casual',
     category: 'humor',
-    icon: '🐷',
+    iconName: 'Pizza',
   },
   {
     id: 'want-cookie',
@@ -165,7 +167,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: '"I finished my report on time." "Do you want a cookie?"',
     situation: 'casual',
     category: 'humor',
-    icon: '🍪',
+    iconName: 'Cookie',
   },
   {
     id: 'go-bananas',
@@ -174,7 +176,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "The team went bananas when we hit our quarterly target.",
     situation: 'emotional',
     category: 'casual',
-    icon: '🍌',
+    iconName: 'Banana',
   },
   {
     id: 'chew-the-fat',
@@ -183,7 +185,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "We spent an hour just chewing the fat about the industry.",
     situation: 'casual',
     category: 'casual',
-    icon: '💬',
+    iconName: 'MessageSquare',
   },
   {
     id: 'bend-over-backwards',
@@ -192,7 +194,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "We bent over backwards to accommodate their timeline.",
     situation: 'emphasis',
     category: 'business',
-    icon: '🤸',
+    iconName: 'Stretch',
   },
   {
     id: 'jump-on-bandwagon',
@@ -201,7 +203,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "Everyone is jumping on the AI bandwagon these days.",
     situation: 'casual',
     category: 'persuasion',
-    icon: '🚐',
+    iconName: 'TrendingUp',
   },
   {
     id: 'cold-shoulder',
@@ -210,7 +212,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "After the disagreement, he gave me the cold shoulder.",
     situation: 'disagreement',
     category: 'emotional',
-    icon: '🥶',
+    iconName: 'Snowflake',
   },
   {
     id: 'finger-in-every-pie',
@@ -219,7 +221,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "She has a finger in every pie—marketing, sales, and operations.",
     situation: 'professional',
     category: 'business',
-    icon: '🥧',
+    iconName: 'Slice',
   },
   {
     id: 'back-to-square-one',
@@ -228,7 +230,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "The prototype failed, so we're back to square one.",
     situation: 'frustration',
     category: 'business',
-    icon: '🔙',
+    iconName: 'RotateCcw',
   },
   {
     id: 'barking-up-wrong-tree',
@@ -237,7 +239,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "If you think I approved that budget, you're barking up the wrong tree.",
     situation: 'disagreement',
     category: 'casual',
-    icon: '🌳',
+    iconName: 'TreePine',
   },
   {
     id: 'butterflies-in-stomach',
@@ -246,7 +248,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "I always get butterflies in my stomach before a big presentation.",
     situation: 'emotional',
     category: 'emotional',
-    icon: '🦋',
+    iconName: 'Bug',
   },
   {
     id: 'cut-to-chase',
@@ -255,7 +257,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "Let's cut to the chase—what's the bottom line?",
     situation: 'transition',
     category: 'business',
-    icon: '✂️',
+    iconName: 'Scissors',
   },
   {
     id: 'ball-in-your-court',
@@ -264,7 +266,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "I've made my offer—the ball is in your court now.",
     situation: 'professional',
     category: 'business',
-    icon: '🎾',
+    iconName: 'Circle',
   },
   {
     id: 'get-ball-rolling',
@@ -273,7 +275,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "Let's get the ball rolling on this project today.",
     situation: 'transition',
     category: 'business',
-    icon: '⚽',
+    iconName: 'Play',
   },
   {
     id: 'hit-ground-running',
@@ -282,7 +284,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "The new hire hit the ground running on day one.",
     situation: 'emphasis',
     category: 'business',
-    icon: '🏃',
+    iconName: 'Zap',
   },
   {
     id: 'move-needle',
@@ -291,7 +293,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "This campaign really moved the needle on brand awareness.",
     situation: 'emphasis',
     category: 'business',
-    icon: '📊',
+    iconName: 'TrendingUp',
   },
   {
     id: 'elephant-in-room',
@@ -300,7 +302,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "We need to address the elephant in the room—our declining sales.",
     situation: 'transition',
     category: 'business',
-    icon: '🐘',
+    iconName: 'AlertCircle',
   },
   {
     id: 'think-outside-box',
@@ -309,7 +311,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "We need to think outside the box to solve this challenge.",
     situation: 'encouragement',
     category: 'business',
-    icon: '📦',
+    iconName: 'Lightbulb',
   },
   {
     id: 'win-win-situation',
@@ -318,7 +320,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "This partnership creates a win-win situation for both companies.",
     situation: 'agreement',
     category: 'persuasion',
-    icon: '🏆',
+    iconName: 'Trophy',
   },
   {
     id: 'on-same-page',
@@ -327,7 +329,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "Before we proceed, let's make sure we're all on the same page.",
     situation: 'agreement',
     category: 'business',
-    icon: '📄',
+    iconName: 'FileText',
   },
   {
     id: 'take-with-grain-salt',
@@ -336,7 +338,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "Take those projections with a grain of salt—they're optimistic.",
     situation: 'disagreement',
     category: 'casual',
-    icon: '🧂',
+    iconName: 'FlaskConical',
   },
   {
     id: 'bite-bullet',
@@ -345,7 +347,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "We need to bite the bullet and have that difficult conversation.",
     situation: 'encouragement',
     category: 'business',
-    icon: '💪',
+    iconName: 'Shield',
   },
   {
     id: 'break-ice',
@@ -354,7 +356,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "Let me break the ice with a quick story about my first day here.",
     situation: 'transition',
     category: 'casual',
-    icon: '🧊',
+    iconName: 'Sparkles',
   },
   {
     id: 'tip-of-iceberg',
@@ -363,7 +365,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "These complaints are just the tip of the iceberg.",
     situation: 'emphasis',
     category: 'business',
-    icon: '🏔️',
+    iconName: 'Mountain',
   },
   {
     id: 'hit-nail-on-head',
@@ -372,7 +374,7 @@ export const VOCABULARY_PHRASES: VocabPhrase[] = [
     example: "You hit the nail on the head with that analysis.",
     situation: 'agreement',
     category: 'casual',
-    icon: '🔨',
+    iconName: 'Hammer',
   },
 ];
 

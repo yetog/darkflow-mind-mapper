@@ -1,6 +1,7 @@
 // Lesson Types for ConvoFlow Speech Coaching
 
 import { SpeechMetrics } from './speech-analysis';
+import { IconName } from '@/components/ui/dynamic-icon';
 
 export interface Lesson {
   id: string;
@@ -12,7 +13,7 @@ export interface Lesson {
   exercises: Exercise[];
   targetMetrics: (keyof SpeechMetrics)[];
   prerequisites?: string[];
-  icon: string;
+  iconName: IconName;
   color: string;
 }
 
@@ -54,7 +55,7 @@ export interface LessonCourse {
   category: LessonCategory;
   lessons: Lesson[];
   estimatedDuration: number; // total minutes
-  icon: string;
+  iconName: IconName;
 }
 
 export interface DailyChallenge {

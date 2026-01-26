@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AnimatedCard, AnimatedCounter, AnimatedProgress, FadeInSection, PulsingElement } from '@/components/ui/animated-card';
+import DynamicIcon from '@/components/ui/dynamic-icon';
 import {
   TrendingUp,
   Flame,
@@ -333,7 +334,9 @@ const ProgressDashboard: React.FC<ProgressDashboardProps> = ({ onStartPractice }
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.0 + idx * 0.1 }}
                   >
-                    <div className="text-2xl mb-1">{stat.icon}</div>
+                    <div className="flex justify-center mb-1">
+                      <DynamicIcon name={stat.iconName} size={24} className="text-primary" />
+                    </div>
                     <div className="text-xl font-bold text-primary">{stat.value}</div>
                     <div className="text-xs text-muted-foreground">{stat.label}</div>
                   </motion.div>

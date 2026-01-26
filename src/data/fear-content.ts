@@ -1,17 +1,19 @@
 // Fear of Public Speaking Content for ConvoFlow
 
+import { IconName } from '@/components/ui/dynamic-icon';
+
 export interface FearSymptom {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  iconName: IconName;
 }
 
 export interface FearCause {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  iconName: IconName;
 }
 
 export interface FearSolution {
@@ -19,7 +21,7 @@ export interface FearSolution {
   name: string;
   description: string;
   steps: string[];
-  icon: string;
+  iconName: IconName;
 }
 
 export const FEAR_SYMPTOMS: FearSymptom[] = [
@@ -27,55 +29,55 @@ export const FEAR_SYMPTOMS: FearSymptom[] = [
     id: 'anxiety',
     name: 'Anxiety',
     description: 'Overwhelming nervousness and worry before or during speaking',
-    icon: '😰',
+    iconName: 'AlertTriangle',
   },
   {
     id: 'dry-mouth',
     name: 'Dry Mouth & Lips',
     description: 'Difficulty speaking due to lack of saliva',
-    icon: '👄',
+    iconName: 'Droplet',
   },
   {
     id: 'panic',
     name: 'Panic Attacks',
     description: 'Feeling your throat isn\'t working and overwhelming fear',
-    icon: '😱',
+    iconName: 'Skull',
   },
   {
     id: 'shaking',
     name: 'Intense Shaking',
     description: 'Uncontrollable shaking of body, especially legs',
-    icon: '🫨',
+    iconName: 'Activity',
   },
   {
     id: 'blood-pressure',
     name: 'Elevated Blood Pressure',
     description: 'Racing heart and increased blood pressure',
-    icon: '❤️‍🔥',
+    iconName: 'HeartPulse',
   },
   {
     id: 'vertigo',
     name: 'Vertigo',
     description: 'Dizziness and feeling like the world is spinning',
-    icon: '😵‍💫',
+    iconName: 'CircleDashed',
   },
   {
     id: 'chest',
     name: 'Chest Contractions',
     description: 'Tightness or pain in the chest area',
-    icon: '💔',
+    iconName: 'Heart',
   },
   {
     id: 'focus',
     name: 'Difficulty Focusing',
     description: 'Unable to focus your eyes or concentrate',
-    icon: '👁️',
+    iconName: 'Eye',
   },
   {
     id: 'ears',
     name: 'Humming in Ears',
     description: 'Ringing or buzzing sounds in your ears',
-    icon: '👂',
+    iconName: 'Ear',
   },
 ];
 
@@ -84,25 +86,25 @@ export const FEAR_CAUSES: FearCause[] = [
     id: 'losing-crowd',
     name: 'Fear of Losing the Crowd',
     description: 'Low confidence and constant worry about what people think. Believing you\'ll lose the audience\'s interest creates a self-fulfilling prophecy.',
-    icon: '👥',
+    iconName: 'Users',
   },
   {
     id: 'somatic',
     name: 'Somatic Response',
     description: 'Your body triggers fight-or-flight response when viewing speaking as a threat. Anxiety kicks in, hormones release, and this affects your senses.',
-    icon: '🧬',
+    iconName: 'Dna',
   },
   {
     id: 'skill-mismatch',
     name: 'Mis-Matched Skill Levels',
     description: 'Speaking to your team doesn\'t guarantee you\'re ready for strangers. Speaking to 100 people doesn\'t prepare you for 1000. We all have limits.',
-    icon: '📊',
+    iconName: 'BarChart3',
   },
   {
     id: 'alien-context',
     name: 'Alien Contexts',
     description: 'Fear increases in unfamiliar rooms, buildings, or countries. When you don\'t know what people will laugh at or how equipment works, anxiety grows.',
-    icon: '🌍',
+    iconName: 'Globe',
   },
 ];
 
@@ -118,7 +120,7 @@ export const FEAR_SOLUTIONS: FearSolution[] = [
       'Practice again after identifying improvements',
       'Run through at least 3 complete rehearsals',
     ],
-    icon: '🔄',
+    iconName: 'RefreshCw',
   },
   {
     id: 'research',
@@ -131,7 +133,7 @@ export const FEAR_SOLUTIONS: FearSolution[] = [
       'Be ready to answer challenging questions',
       'Know more than you\'ll present',
     ],
-    icon: '📚',
+    iconName: 'BookOpen',
   },
   {
     id: 'breathing',
@@ -144,7 +146,7 @@ export const FEAR_SOLUTIONS: FearSolution[] = [
       'Exhale slowly through your mouth for 6 seconds',
       'Repeat 5-10 times before speaking',
     ],
-    icon: '🧘',
+    iconName: 'Wind',
   },
   {
     id: 'organize',
@@ -157,7 +159,7 @@ export const FEAR_SOLUTIONS: FearSolution[] = [
       'Structure your key points',
       'Prepare a memorable closing',
     ],
-    icon: '📋',
+    iconName: 'ClipboardList',
   },
   {
     id: 'visualize',
@@ -170,7 +172,7 @@ export const FEAR_SOLUTIONS: FearSolution[] = [
       'Imagine delivering your key points smoothly',
       'See yourself receiving applause',
     ],
-    icon: '🌟',
+    iconName: 'Star',
   },
   {
     id: 'focus-message',
@@ -183,7 +185,7 @@ export const FEAR_SOLUTIONS: FearSolution[] = [
       'Think about what the audience needs to know',
       'Stay committed to your message',
     ],
-    icon: '🎯',
+    iconName: 'Target',
   },
   {
     id: 'timing',
@@ -196,7 +198,7 @@ export const FEAR_SOLUTIONS: FearSolution[] = [
       'Don\'t rush through content',
       'Remember: silence feels longer to you than them',
     ],
-    icon: '⏱️',
+    iconName: 'Clock',
   },
   {
     id: 'peers',
@@ -209,7 +211,7 @@ export const FEAR_SOLUTIONS: FearSolution[] = [
       'Learn from experienced speakers',
       'Support others on their journey too',
     ],
-    icon: '🤝',
+    iconName: 'Users',
   },
 ];
 
@@ -218,25 +220,25 @@ export const BERKUN_FEAR_TRIGGERS = [
     id: 'standing-alone',
     name: 'Standing Alone',
     description: 'Feeling exposed and vulnerable when alone on stage',
-    icon: '🧍',
+    iconName: 'PersonStanding' as IconName,
   },
   {
     id: 'open-space',
     name: 'Open Space',
     description: 'Nowhere to hide makes you feel unsafe',
-    icon: '🏟️',
+    iconName: 'Building2' as IconName,
   },
   {
     id: 'no-weapon',
     name: 'No Weapon',
     description: 'Feeling defenseless triggers primal fear',
-    icon: '🛡️',
+    iconName: 'Shield' as IconName,
   },
   {
     id: 'big-audience',
     name: 'Big Audience Staring',
     description: 'Scrutiny and pressure from many eyes intensify anxiety',
-    icon: '👀',
+    iconName: 'ScanEye' as IconName,
   },
 ];
 
