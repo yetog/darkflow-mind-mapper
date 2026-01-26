@@ -10,6 +10,7 @@ import WelcomeModal from '@/components/WelcomeModal';
 import PracticeMode from '@/components/practice/PracticeMode';
 import ProgressDashboard from '@/components/progress/ProgressDashboard';
 import LessonsBrowser from '@/components/lessons/LessonsBrowser';
+import FearModule from '@/components/lessons/FearModule';
 import { ViewMode, ConversationType, ConversationPlan, ConversationNode } from '@/types/conversation';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 
@@ -122,6 +123,8 @@ const ConvoFlowApp = () => {
         return <PracticeMode />;
       case 'lessons':
         return <LessonsBrowser />;
+      case 'fear-module':
+        return <FearModule />;
       case 'plan':
       default:
         return renderActiveView();
@@ -165,6 +168,8 @@ const ConvoFlowApp = () => {
         return 'Practice Mode';
       case 'lessons':
         return 'Lessons';
+      case 'fear-module':
+        return 'Overcome Fear';
       case 'plan':
       default:
         return currentPlan.title;

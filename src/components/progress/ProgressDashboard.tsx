@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -16,8 +16,13 @@ import {
   MessageSquare,
   Volume2,
   Play,
+  Lightbulb,
+  Heart,
 } from 'lucide-react';
 import { USER_LEVELS } from '@/types/progress';
+import { getRandomTip, ExpertTip } from '@/data/expert-tips';
+import { SPEAKING_STATS } from '@/data/speaking-stats';
+import ExpertTipCard from '@/components/common/ExpertTipCard';
 
 interface ProgressDashboardProps {
   onStartPractice?: () => void;
@@ -71,6 +76,11 @@ const mockProgress = {
 const ProgressDashboard: React.FC<ProgressDashboardProps> = ({ onStartPractice }) => {
   const progress = mockProgress;
   const levelProgress = (progress.level.xp / progress.level.xpToNextLevel) * 100;
+  const [currentTip, setCurrentTip] = useState<ExpertTip>(() => getRandomTip());
+
+  const refreshTip = useCallback(() => {
+    setCurrentTip(getRandomTip());
+  }, []);
 
   return (
     <ScrollArea className="h-full">
@@ -223,6 +233,19 @@ const ProgressDashboard: React.FC<ProgressDashboardProps> = ({ onStartPractice }
           </CardContent>
         </Card>
 
+        {/* Daily Expert Tip */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Lightbulb className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold">Daily Expert Tip</h2>
+          </div>
+          <ExpertTipCard 
+            tip={currentTip} 
+            onRefresh={refreshTip}
+            showCategory={true}
+          />
+        </div>
+
         <div className="grid md:grid-cols-2 gap-6">
           {/* Insights */}
           <Card>
@@ -277,6 +300,27 @@ const ProgressDashboard: React.FC<ProgressDashboardProps> = ({ onStartPractice }
             </CardContent>
           </Card>
         </div>
+
+        {/* Speaking Stats - Motivation */}
+        <Card className="bg-gradient-to-r from-primary/5 to-transparent">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Heart className="h-5 w-5 text-red-500" />
+              Did You Know?
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {SPEAKING_STATS.slice(0, 4).map((stat) => (
+                <div key={stat.id} className="text-center">
+                  <div className="text-2xl mb-1">{stat.icon}</div>
+                  <div className="text-xl font-bold text-primary">{stat.value}</div>
+                  <div className="text-xs text-muted-foreground">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </ScrollArea>
   );

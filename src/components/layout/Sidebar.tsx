@@ -27,10 +27,11 @@ import {
   GraduationCap,
   Mic,
   BarChart3,
+  Heart,
 } from 'lucide-react';
 import { ViewMode, ConversationType, CONVERSATION_TYPES } from '@/types/conversation';
 
-export type AppSection = 'plan' | 'practice' | 'lessons' | 'dashboard';
+export type AppSection = 'plan' | 'practice' | 'lessons' | 'dashboard' | 'fear-module';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -93,6 +94,7 @@ const Sidebar = ({
     { id: 'dashboard' as AppSection, label: 'Dashboard', icon: BarChart3 },
     { id: 'practice' as AppSection, label: 'Practice', icon: Mic },
     { id: 'lessons' as AppSection, label: 'Lessons', icon: GraduationCap },
+    { id: 'fear-module' as AppSection, label: 'Overcome Fear', icon: Heart },
     { id: 'plan' as AppSection, label: 'Plan', icon: Map },
   ];
 
