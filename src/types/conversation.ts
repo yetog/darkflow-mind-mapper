@@ -81,6 +81,8 @@ export interface AudienceProfile {
   expertise: 'novice' | 'intermediate' | 'expert' | 'mixed';
   relationship: 'new' | 'familiar' | 'established';
   expectations?: string[];
+  mood?: 'skeptical' | 'neutral' | 'enthusiastic';
+  decisionMakers?: boolean;
 }
 
 // Node for the visual representations

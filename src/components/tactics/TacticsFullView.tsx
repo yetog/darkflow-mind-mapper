@@ -13,19 +13,21 @@ import {
   Star,
   Clock,
   BookOpen,
-  Sparkles,
+  GitCompare,
+  Check,
 } from 'lucide-react';
 import {
   STORYTELLER_TACTICS,
   getTacticsByCategory,
-  getTacticsForConversationType,
-  searchTactics,
 } from '@/data/storyteller-tactics';
 import { TACTIC_CATEGORIES, StorytellerTactic, TacticCategory } from '@/types/tactics';
 import { ConversationType, ConversationNode } from '@/types/conversation';
 import TacticDetailView from './TacticDetailView';
+import TacticComparison from './TacticComparison';
+import TacticRecommendations from './TacticRecommendations';
 import CreateTacticModal from './CreateTacticModal';
 import { useUserTactics } from '@/hooks/useUserTactics';
+import { useTacticComparison } from '@/hooks/useTacticComparison';
 import { cn } from '@/lib/utils';
 
 interface TacticsFullViewProps {
@@ -47,13 +49,25 @@ const TacticsFullView = ({
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [selectedTactic, setSelectedTactic] = useState<StorytellerTactic | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
   
   const { userTactics, favorites, recentlyViewed, toggleFavorite, addToRecent, addTactic } = useUserTactics();
+  const {
+    leftTactic,
+    rightTactic,
+    isCompareMode,
+    setIsCompareMode,
+    addToComparison,
+    setLeftTactic,
+    setRightTactic,
+    swapTactics,
+    clearComparison,
+    isInComparison,
+    comparisonCount,
+    canCompare,
+  } = useTacticComparison();
 
-  // Get recommended tactics for current conversation type
-  const recommendedTactics = useMemo(() => {
-    return getTacticsForConversationType(conversationType).slice(0, 6);
-  }, [conversationType]);
+  const allTactics = useMemo(() => [...STORYTELLER_TACTICS, ...userTactics], [userTactics]);
 
   // Filter tactics based on active tab and search
   const filteredTactics = useMemo(() => {
@@ -62,14 +76,14 @@ const TacticsFullView = ({
     // First, apply tab filter
     switch (activeTab) {
       case 'all':
-        tactics = [...STORYTELLER_TACTICS, ...userTactics];
+        tactics = allTactics;
         break;
       case 'favorites':
-        tactics = [...STORYTELLER_TACTICS, ...userTactics].filter(t => favorites.includes(t.id));
+        tactics = allTactics.filter(t => favorites.includes(t.id));
         break;
       case 'recent':
         tactics = recentlyViewed
-          .map(id => [...STORYTELLER_TACTICS, ...userTactics].find(t => t.id === id))
+          .map(id => allTactics.find(t => t.id === id))
           .filter((t): t is StorytellerTactic => t !== undefined);
         break;
       case 'my-tactics':
@@ -92,11 +106,15 @@ const TacticsFullView = ({
     }
 
     return tactics;
-  }, [activeTab, searchQuery, userTactics, favorites, recentlyViewed]);
+  }, [activeTab, searchQuery, allTactics, userTactics, favorites, recentlyViewed]);
 
   const handleTacticClick = (tactic: StorytellerTactic) => {
-    addToRecent(tactic.id);
-    setSelectedTactic(tactic);
+    if (isCompareMode) {
+      addToComparison(tactic);
+    } else {
+      addToRecent(tactic.id);
+      setSelectedTactic(tactic);
+    }
   };
 
   const handlePractice = () => {
@@ -104,6 +122,35 @@ const TacticsFullView = ({
       onStartPractice(selectedTactic.id);
     }
   };
+
+  const handleOpenComparison = () => {
+    setShowComparison(true);
+    setIsCompareMode(false);
+  };
+
+  const handleCloseComparison = () => {
+    setShowComparison(false);
+    clearComparison();
+  };
+
+  // If showing comparison view
+  if (showComparison) {
+    return (
+      <TacticComparison
+        leftTactic={leftTactic}
+        rightTactic={rightTactic}
+        onSetLeft={setLeftTactic}
+        onSetRight={setRightTactic}
+        onSwap={swapTactics}
+        onClose={handleCloseComparison}
+        onSelectTactic={(tactic) => {
+          setShowComparison(false);
+          setSelectedTactic(tactic);
+        }}
+        userTactics={userTactics}
+      />
+    );
+  }
 
   // If a tactic is selected, show detail view
   if (selectedTactic) {
@@ -114,6 +161,10 @@ const TacticsFullView = ({
         onApplyToMindMap={onApplyToMindMap}
         onPractice={handlePractice}
         onSelectRelated={handleTacticClick}
+        onCompare={(tactic) => {
+          addToComparison(tactic);
+          setShowComparison(true);
+        }}
       />
     );
   }
@@ -149,6 +200,42 @@ const TacticsFullView = ({
             >
               <List className="h-4 w-4" />
             </Button>
+            <div className="w-px h-6 bg-border" />
+            {isCompareMode ? (
+              <>
+                <Badge variant="secondary" className="gap-2">
+                  <Check className="h-3 w-3" />
+                  {comparisonCount}/2 selected
+                </Badge>
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  disabled={!canCompare}
+                  onClick={handleOpenComparison}
+                >
+                  Compare
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    clearComparison();
+                    setIsCompareMode(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCompareMode(true)}
+              >
+                <GitCompare className="h-4 w-4 mr-2" />
+                Compare
+              </Button>
+            )}
             <Button onClick={() => setShowCreateModal(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Create Tactic
@@ -218,37 +305,14 @@ const TacticsFullView = ({
       {/* Content */}
       <ScrollArea className="flex-1">
         <div className="p-6">
-          {/* Recommended Section - only show on "all" tab */}
+          {/* Smart Recommendations - only show on "all" tab */}
           {activeTab === 'all' && !searchQuery && (
-            <motion.section
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="h-5 w-5 text-primary" />
-                <h3 className="font-medium text-foreground">
-                  Recommended for {conversationType}s
-                </h3>
-              </div>
-              <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
-                {recommendedTactics.map(tactic => (
-                  <Card
-                    key={tactic.id}
-                    className="p-4 cursor-pointer hover:border-primary/50 transition-all hover:shadow-glow"
-                    onClick={() => handleTacticClick(tactic)}
-                  >
-                    <Badge 
-                      variant="outline" 
-                      className={cn('mb-2 text-xs capitalize', `badge-${tactic.category}`)}
-                    >
-                      {tactic.category}
-                    </Badge>
-                    <h4 className="font-medium text-foreground text-sm">{tactic.name}</h4>
-                  </Card>
-                ))}
-              </div>
-            </motion.section>
+            <TacticRecommendations
+              conversationType={conversationType}
+              onSelectTactic={handleTacticClick}
+              allTactics={allTactics}
+              limit={6}
+            />
           )}
 
           {/* Tactics Grid/List */}

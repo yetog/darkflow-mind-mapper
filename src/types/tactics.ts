@@ -7,7 +7,8 @@ export type TacticCategory =
   | 'structure' 
   | 'style' 
   | 'organize' 
-  | 'recipe';
+  | 'recipe'
+  | 'beat';
 
 export interface StorytellerTactic {
   id: string;
@@ -78,5 +79,11 @@ export const TACTIC_CATEGORIES: TacticCategoryInfo[] = [
     label: 'Recipe',
     description: 'Combine tactics to solve common problems',
     color: 'teal',
+  },
+  {
+    id: 'beat',
+    label: 'Beats',
+    description: 'Critical turning points that transform your narrative',
+    color: 'slate',
   },
 ];

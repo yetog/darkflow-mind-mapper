@@ -332,6 +332,156 @@ export const TACTIC_DIAGRAMS: TacticDiagram[] = [
       { id: 'e4-5', source: '4', target: '5', animated: true },
     ],
   },
+
+  // BEAT DIAGRAMS - Advanced Storytelling Beats
+  
+  // Dark Night of the Soul - V-shape with emphasis on the bottom
+  {
+    tacticId: 'dark-night-of-the-soul',
+    shape: 'arc',
+    nodes: [
+      { id: '1', label: 'Everything Falls', description: 'Stakes become visceral', position: { x: 0, y: 50 }, type: 'start' },
+      { id: '2', label: 'Sitting in Despair', description: 'Allow the pain', position: { x: 150, y: 150 }, type: 'middle' },
+      { id: '3', label: 'The Lowest Point', description: 'Rock bottom', position: { x: 300, y: 200 }, type: 'low' },
+      { id: '4', label: 'The Spark', description: 'Small glimmer of hope', position: { x: 450, y: 150 }, type: 'middle' },
+      { id: '5', label: 'Renewed Determination', description: 'Rise with wisdom', position: { x: 600, y: 50 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' },
+      { id: 'e2-3', source: '2', target: '3', label: 'Descent' },
+      { id: 'e3-4', source: '3', target: '4', label: 'Turning Point', animated: true },
+      { id: 'e4-5', source: '4', target: '5' },
+    ],
+  },
+
+  // The Mirror Moment - Reflection pattern
+  {
+    tacticId: 'the-mirror-moment',
+    shape: 'hub',
+    nodes: [
+      { id: '1', label: 'Confrontation', description: 'Face yourself', position: { x: 250, y: 0 }, type: 'start' },
+      { id: '2', label: 'Who I\'ve Become', description: 'Recognition', position: { x: 100, y: 120 }, type: 'middle' },
+      { id: '3', label: 'The Choice', description: 'Stay or transform', position: { x: 250, y: 150 }, type: 'peak' },
+      { id: '4', label: 'Who I Could Be', description: 'Possibility', position: { x: 400, y: 120 }, type: 'middle' },
+      { id: '5', label: 'First Step', description: 'New path begins', position: { x: 250, y: 280 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' },
+      { id: 'e1-4', source: '1', target: '4' },
+      { id: 'e2-3', source: '2', target: '3' },
+      { id: 'e4-3', source: '4', target: '3' },
+      { id: 'e3-5', source: '3', target: '5', label: 'Decision', animated: true },
+    ],
+  },
+
+  // The Inciting Incident - Disruption visualization
+  {
+    tacticId: 'the-inciting-incident',
+    shape: 'linear',
+    nodes: [
+      { id: '1', label: 'Ordinary World', description: 'The before', position: { x: 0, y: 100 }, type: 'start' },
+      { id: '2', label: 'The Disruption', description: 'Everything changes', position: { x: 200, y: 100 }, type: 'peak' },
+      { id: '3', label: 'Immediate Impact', description: 'Nothing stays the same', position: { x: 400, y: 100 }, type: 'middle' },
+      { id: '4', label: 'The Urgency', description: 'Why action is needed now', position: { x: 600, y: 100 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2', label: 'DISRUPTION', animated: true },
+      { id: 'e2-3', source: '2', target: '3' },
+      { id: 'e3-4', source: '3', target: '4' },
+    ],
+  },
+
+  // Point of No Return - Threshold crossing
+  {
+    tacticId: 'point-of-no-return',
+    shape: 'linear',
+    nodes: [
+      { id: '1', label: 'What\'s Left Behind', description: 'The old world', position: { x: 0, y: 100 }, type: 'start' },
+      { id: '2', label: 'The Threshold', description: 'Crossing point', position: { x: 200, y: 100 }, type: 'peak' },
+      { id: '3', label: 'Bridges Burned', description: 'No return possible', position: { x: 400, y: 100 }, type: 'middle' },
+      { id: '4', label: 'Facing Forward', description: 'Committed path', position: { x: 600, y: 100 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' },
+      { id: 'e2-3', source: '2', target: '3', label: 'NO RETURN', animated: true },
+      { id: 'e3-4', source: '3', target: '4' },
+    ],
+  },
+
+  // All Is Lost - False defeat before victory
+  {
+    tacticId: 'all-is-lost',
+    shape: 'arc',
+    nodes: [
+      { id: '1', label: 'Final Defeat', description: 'It seems over', position: { x: 0, y: 0 }, type: 'start' },
+      { id: '2', label: 'Hopelessness', description: 'Sit in the loss', position: { x: 150, y: 100 }, type: 'middle' },
+      { id: '3', label: 'Whiff of Death', description: 'Symbolic ending', position: { x: 300, y: 150 }, type: 'low' },
+      { id: '4', label: 'Hidden Resource', description: 'What was overlooked', position: { x: 450, y: 75 }, type: 'peak' },
+      { id: '5', label: 'The Final Push', description: 'Rapid transition to action', position: { x: 600, y: 0 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' },
+      { id: 'e2-3', source: '2', target: '3' },
+      { id: 'e3-4', source: '3', target: '4', label: 'But wait...', animated: true },
+      { id: 'e4-5', source: '4', target: '5' },
+    ],
+  },
+
+  // Midpoint Shift - Pivot/reversal pattern
+  {
+    tacticId: 'midpoint-shift',
+    shape: 'zigzag',
+    nodes: [
+      { id: '1', label: 'Obvious Direction', description: 'What seemed true', position: { x: 0, y: 100 }, type: 'start' },
+      { id: '2', label: 'New Information', description: 'The revelation', position: { x: 200, y: 50 }, type: 'peak' },
+      { id: '3', label: 'Everything Reframes', description: 'New understanding', position: { x: 400, y: 150 }, type: 'middle' },
+      { id: '4', label: 'Stakes Raised', description: 'Higher stakes now', position: { x: 600, y: 100 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' },
+      { id: 'e2-3', source: '2', target: '3', label: 'SHIFT', animated: true },
+      { id: 'e3-4', source: '3', target: '4' },
+    ],
+  },
+
+  // The Final Push - Convergence pattern
+  {
+    tacticId: 'the-final-push',
+    shape: 'tree',
+    nodes: [
+      { id: '1', label: 'Resources', description: 'What we have', position: { x: 0, y: 0 }, type: 'branch' },
+      { id: '2', label: 'Lessons', description: 'What we learned', position: { x: 0, y: 150 }, type: 'branch' },
+      { id: '3', label: 'Team', description: 'Who\'s with us', position: { x: 0, y: 300 }, type: 'branch' },
+      { id: '4', label: 'Convergence', description: 'Everything together', position: { x: 250, y: 150 }, type: 'peak' },
+      { id: '5', label: 'ACTION', description: 'Clear direction', position: { x: 500, y: 150 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-4', source: '1', target: '4' },
+      { id: 'e2-4', source: '2', target: '4' },
+      { id: 'e3-4', source: '3', target: '4' },
+      { id: 'e4-5', source: '4', target: '5', label: 'GO!', animated: true },
+    ],
+  },
+
+  // New Equilibrium - Before/After mirror
+  {
+    tacticId: 'new-equilibrium',
+    shape: 'parallel',
+    nodes: [
+      { id: '1', label: 'Opening Element', description: 'Mirror from beginning', position: { x: 0, y: 0 }, type: 'start' },
+      { id: '2', label: 'How It\'s Different', description: 'The transformation', position: { x: 200, y: 0 }, type: 'middle' },
+      { id: '3', label: 'Growth Shown', description: 'Character/org development', position: { x: 400, y: 0 }, type: 'middle' },
+      { id: '4', label: 'New Possibilities', description: 'What\'s possible now', position: { x: 600, y: 0 }, type: 'end' },
+      { id: '5', label: 'Resonance', description: 'Connect to opening', position: { x: 300, y: 150 }, type: 'end' },
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' },
+      { id: 'e2-3', source: '2', target: '3' },
+      { id: 'e3-4', source: '3', target: '4' },
+      { id: 'e1-5', source: '1', target: '5', label: 'Echo' },
+      { id: 'e4-5', source: '4', target: '5' },
+    ],
+  },
 ];
 
 // Get diagram for a specific tactic

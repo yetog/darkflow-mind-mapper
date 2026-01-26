@@ -11,6 +11,7 @@ import {
   Copy,
   Share2,
   BookOpen,
+  GitCompare,
 } from 'lucide-react';
 import { StorytellerTactic, TACTIC_CATEGORIES } from '@/types/tactics';
 import { STORYTELLER_TACTICS } from '@/data/storyteller-tactics';
@@ -24,6 +25,7 @@ interface TacticDetailViewProps {
   onApplyToMindMap?: (nodes: ConversationNode[]) => void;
   onPractice?: () => void;
   onSelectRelated?: (tactic: StorytellerTactic) => void;
+  onCompare?: (tactic: StorytellerTactic) => void;
 }
 
 const TacticDetailView = ({ 
@@ -31,7 +33,8 @@ const TacticDetailView = ({
   onBack, 
   onApplyToMindMap, 
   onPractice,
-  onSelectRelated 
+  onSelectRelated,
+  onCompare,
 }: TacticDetailViewProps) => {
   const category = TACTIC_CATEGORIES.find(c => c.id === tactic.category);
 
@@ -82,6 +85,11 @@ const TacticDetailView = ({
             </p>
           </div>
           <div className="flex gap-2">
+            {onCompare && (
+              <Button variant="outline" size="icon" onClick={() => onCompare(tactic)}>
+                <GitCompare className="h-4 w-4" />
+              </Button>
+            )}
             <Button variant="outline" size="icon">
               <Share2 className="h-4 w-4" />
             </Button>
