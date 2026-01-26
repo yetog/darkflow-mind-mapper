@@ -27,10 +27,12 @@ import {
   GraduationCap,
   Mic,
   BarChart3,
+  Sparkles,
+  BookText,
 } from 'lucide-react';
 import { ViewMode, ConversationType, CONVERSATION_TYPES } from '@/types/conversation';
 
-export type AppSection = 'plan' | 'practice' | 'lessons' | 'dashboard' | 'fear-module';
+export type AppSection = 'plan' | 'practice' | 'lessons' | 'dashboard' | 'fear-module' | 'tactics' | 'vocabulary';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -89,12 +91,13 @@ const Sidebar = ({
     { id: 'carousel' as ViewMode, label: 'Carousel', icon: Layers },
   ];
 
-  // Removed fear-module from here - it's now under Lessons
   const sectionItems = [
     { id: 'dashboard' as AppSection, label: 'Dashboard', icon: BarChart3 },
+    { id: 'plan' as AppSection, label: 'Plan', icon: Map },
     { id: 'practice' as AppSection, label: 'Practice', icon: Mic },
     { id: 'lessons' as AppSection, label: 'Lessons', icon: GraduationCap },
-    { id: 'plan' as AppSection, label: 'Plan', icon: Map },
+    { id: 'tactics' as AppSection, label: 'Story Tactics', icon: Sparkles },
+    { id: 'vocabulary' as AppSection, label: 'Vocabulary', icon: BookText },
   ];
 
   return (
