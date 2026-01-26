@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AnimatedCard, FadeInSection, PulsingElement } from '@/components/ui/animated-card';
+import DynamicIcon from '@/components/ui/dynamic-icon';
 import {
   Play,
   Clock,
@@ -110,7 +111,9 @@ const LessonsBrowser: React.FC<LessonsBrowserProps> = ({ onStartLesson, onOpenFe
                   <Card className="group hover:border-primary/50 transition-colors cursor-pointer h-full">
                     <CardHeader>
                       <div className="flex items-center justify-between">
-                        <span className="text-3xl">{course.icon}</span>
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <DynamicIcon name={course.iconName} size={24} className="text-primary" />
+                        </div>
                         <Badge variant="secondary">{course.lessons.length} lessons</Badge>
                       </div>
                       <CardTitle className="text-lg">{course.title}</CardTitle>
@@ -167,7 +170,7 @@ const LessonsBrowser: React.FC<LessonsBrowserProps> = ({ onStartLesson, onOpenFe
                           <CardContent className="py-4">
                             <div className="flex items-center gap-4">
                               <div className={cn(
-                                "h-12 w-12 rounded-lg flex items-center justify-center text-2xl",
+                                "h-12 w-12 rounded-lg flex items-center justify-center",
                                 `bg-${category.color}-500/10`
                               )}>
                                 {isCompleted ? (
@@ -175,7 +178,7 @@ const LessonsBrowser: React.FC<LessonsBrowserProps> = ({ onStartLesson, onOpenFe
                                 ) : isLocked ? (
                                   <Lock className="h-5 w-5 text-muted-foreground" />
                                 ) : (
-                                  lesson.icon
+                                  <DynamicIcon name={lesson.iconName} size={24} className="text-primary" />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">

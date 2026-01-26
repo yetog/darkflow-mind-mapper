@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import DynamicIcon from '@/components/ui/dynamic-icon';
 import {
   Search,
   Shuffle,
@@ -181,7 +182,9 @@ const VocabBrowser = ({ onAddPhrase }: VocabBrowserProps) => {
                       <Card className="p-4 hover:border-primary/50 transition-colors h-full">
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-xl">{phrase.icon}</span>
+                            <div className="p-1.5 rounded-md bg-muted">
+                              <DynamicIcon name={phrase.iconName} size={18} className="text-muted-foreground" />
+                            </div>
                             <h4 className="font-medium text-foreground">{phrase.phrase}</h4>
                           </div>
                           <Badge variant="outline" className={cn('text-xs capitalize', getCategoryColor(phrase.category))}>
@@ -253,7 +256,9 @@ const VocabBrowser = ({ onAddPhrase }: VocabBrowserProps) => {
                           isFlipped && "invisible"
                         )}
                       >
-                        <span className="text-4xl mb-4">{currentFlashcard.icon}</span>
+                        <div className="p-3 rounded-lg bg-primary/10 mb-4">
+                          <DynamicIcon name={currentFlashcard.iconName} size={32} className="text-primary" />
+                        </div>
                         <h3 className="text-2xl font-semibold text-foreground mb-2">
                           {currentFlashcard.phrase}
                         </h3>

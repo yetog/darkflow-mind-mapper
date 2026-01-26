@@ -1,5 +1,7 @@
 // Speaker Roles for ConvoFlow - Based on Public Speaking 101 Guide
 
+import { IconName } from '@/components/ui/dynamic-icon';
+
 export interface SpeakerRole {
   id: string;
   name: string;
@@ -7,7 +9,7 @@ export interface SpeakerRole {
   skills: string[];
   challenges: string[];
   practiceScenarios: string[];
-  icon: string;
+  iconName: IconName;
   color: string;
 }
 
@@ -34,7 +36,7 @@ export const SPEAKER_ROLES: SpeakerRole[] = [
       'Give a TED-style talk on an important topic',
       'Share your professional journey',
     ],
-    icon: '🎤',
+    iconName: 'Mic',
     color: 'purple',
   },
   {
@@ -59,7 +61,7 @@ export const SPEAKER_ROLES: SpeakerRole[] = [
       'Guide a team through problem-solving',
       'Lead a training session',
     ],
-    icon: '📋',
+    iconName: 'ClipboardList',
     color: 'teal',
   },
   {
@@ -84,7 +86,7 @@ export const SPEAKER_ROLES: SpeakerRole[] = [
       'Facilitate a town hall discussion',
       'Run an open forum meeting',
     ],
-    icon: '⚖️',
+    iconName: 'Scale',
     color: 'blue',
   },
   {
@@ -109,7 +111,7 @@ export const SPEAKER_ROLES: SpeakerRole[] = [
       'Warm up an audience before a main event',
       'Add humor to a business presentation',
     ],
-    icon: '🎭',
+    iconName: 'Smile',
     color: 'pink',
   },
   {
@@ -134,7 +136,7 @@ export const SPEAKER_ROLES: SpeakerRole[] = [
       'Welcome an audience and set the tone',
       'Close out an event memorably',
     ],
-    icon: '🎪',
+    iconName: 'PartyPopper',
     color: 'amber',
   },
   {
@@ -159,7 +161,7 @@ export const SPEAKER_ROLES: SpeakerRole[] = [
       'Lead a Q&A after a lesson',
       'Guide someone through a process',
     ],
-    icon: '👨‍🏫',
+    iconName: 'GraduationCap',
     color: 'green',
   },
   {
@@ -184,7 +186,7 @@ export const SPEAKER_ROLES: SpeakerRole[] = [
       'Coach through public speaking anxiety',
       'Guide someone setting speaking goals',
     ],
-    icon: '🏋️',
+    iconName: 'Dumbbell',
     color: 'orange',
   },
 ];

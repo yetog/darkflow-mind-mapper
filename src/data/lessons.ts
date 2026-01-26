@@ -1,5 +1,6 @@
 // Lesson Data for ConvoFlow Speech Coaching
 
+import { IconName } from '@/components/ui/dynamic-icon';
 import { Lesson, LessonCourse, DailyChallenge, Exercise } from '@/types/lessons';
 
 export const LESSONS: Lesson[] = [
@@ -11,7 +12,7 @@ export const LESSONS: Lesson[] = [
     category: 'confidence',
     difficulty: 'beginner',
     duration: 5,
-    icon: '💪',
+    iconName: 'Shield',
     color: 'amber',
     targetMetrics: ['confidence', 'energy'],
     exercises: [
@@ -40,7 +41,7 @@ export const LESSONS: Lesson[] = [
     category: 'confidence',
     difficulty: 'intermediate',
     duration: 7,
-    icon: '🎯',
+    iconName: 'Target',
     color: 'amber',
     targetMetrics: ['confidence'],
     exercises: [
@@ -71,7 +72,7 @@ export const LESSONS: Lesson[] = [
     category: 'filler-words',
     difficulty: 'beginner',
     duration: 5,
-    icon: '🔇',
+    iconName: 'VolumeX',
     color: 'red',
     targetMetrics: ['fillerWords', 'pausing'],
     exercises: [
@@ -103,7 +104,7 @@ export const LESSONS: Lesson[] = [
     category: 'pace',
     difficulty: 'beginner',
     duration: 6,
-    icon: '⏱️',
+    iconName: 'Clock',
     color: 'purple',
     targetMetrics: ['pace'],
     exercises: [
@@ -134,7 +135,7 @@ export const LESSONS: Lesson[] = [
     category: 'engagement',
     difficulty: 'beginner',
     duration: 8,
-    icon: '🎣',
+    iconName: 'Anchor',
     color: 'pink',
     targetMetrics: ['energy', 'confidence'],
     exercises: [
@@ -167,7 +168,7 @@ export const LESSONS: Lesson[] = [
     category: 'structure',
     difficulty: 'beginner',
     duration: 7,
-    icon: '📐',
+    iconName: 'Layout',
     color: 'teal',
     targetMetrics: ['conciseness'],
     exercises: [
@@ -191,7 +192,7 @@ export const LESSONS: Lesson[] = [
     category: 'energy',
     difficulty: 'beginner',
     duration: 5,
-    icon: '⚡',
+    iconName: 'Zap',
     color: 'orange',
     targetMetrics: ['energy'],
     exercises: [
@@ -220,7 +221,7 @@ export const LESSONS: Lesson[] = [
     category: 'structure',
     difficulty: 'intermediate',
     duration: 10,
-    icon: '🧠',
+    iconName: 'Brain',
     color: 'teal',
     targetMetrics: ['confidence', 'conciseness'],
     exercises: [
@@ -252,7 +253,7 @@ export const LESSON_COURSES: LessonCourse[] = [
     category: 'confidence',
     lessons: LESSONS.filter(l => l.category === 'confidence'),
     estimatedDuration: 30,
-    icon: '💪',
+    iconName: 'Shield',
   },
   {
     id: 'filler-words-course',
@@ -261,7 +262,7 @@ export const LESSON_COURSES: LessonCourse[] = [
     category: 'filler-words',
     lessons: LESSONS.filter(l => l.category === 'filler-words'),
     estimatedDuration: 20,
-    icon: '🔇',
+    iconName: 'VolumeX',
   },
   {
     id: 'pace-course',
@@ -270,7 +271,7 @@ export const LESSON_COURSES: LessonCourse[] = [
     category: 'pace',
     lessons: LESSONS.filter(l => l.category === 'pace'),
     estimatedDuration: 25,
-    icon: '⏱️',
+    iconName: 'Clock',
   },
 ];
 
