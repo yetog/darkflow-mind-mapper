@@ -81,7 +81,7 @@ const MindMapView = ({ nodes, onNodesUpdate }: MindMapViewProps) => {
     const processNode = (node: ConversationNode, parentId?: string) => {
       const nodeShape = getNodeShape(node.type);
       const label = node.label.replace(/"/g, "'");
-      code += `    ${node.id}${nodeShape[0]}"${label}"${nodeShape[1]}\n`;
+      code += `    ${node.id}${nodeShape[0]}"${label}"${nodeShape[1]}:::${node.type}\n`;
       
       if (parentId) {
         code += `    ${parentId} --> ${node.id}\n`;
@@ -94,12 +94,12 @@ const MindMapView = ({ nodes, onNodesUpdate }: MindMapViewProps) => {
 
     nodes.forEach(node => processNode(node));
     
-    // Add styling
-    code += '\n    classDef topic fill:hsl(226,70%,55%),stroke:hsl(226,70%,40%),color:white\n';
-    code += '    classDef question fill:hsl(262,83%,58%),stroke:hsl(262,83%,45%),color:white\n';
-    code += '    classDef transition fill:hsl(172,66%,50%),stroke:hsl(172,66%,38%),color:white\n';
-    code += '    classDef activity fill:hsl(38,92%,50%),stroke:hsl(38,92%,38%),color:black\n';
-    code += '    classDef milestone fill:hsl(142,71%,45%),stroke:hsl(142,71%,33%),color:white\n';
+    // Add styling with hex colors (Mermaid doesn't support hsl() in classDef)
+    code += '\n    classDef topic fill:#4169E1,stroke:#2B4B9B,color:#fff\n';
+    code += '    classDef question fill:#9B59B6,stroke:#7B2D9E,color:#fff\n';
+    code += '    classDef transition fill:#2BC0A8,stroke:#1F9080,color:#fff\n';
+    code += '    classDef activity fill:#F5A623,stroke:#C4841C,color:#000\n';
+    code += '    classDef milestone fill:#27AE60,stroke:#1E8449,color:#fff\n';
     
     return code;
   };
