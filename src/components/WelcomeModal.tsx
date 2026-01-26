@@ -66,6 +66,14 @@ const WelcomeModal = ({ open, onOpenChange, onSelectType }: WelcomeModalProps) =
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl p-0 gap-0 bg-background/95 backdrop-blur-xl border-border/50">
+        {/* Fear Statistic Banner */}
+        <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-6 py-3 text-center border-b border-amber-500/20">
+          <p className="text-sm">
+            <span className="font-bold text-amber-500">73% of people</span>
+            <span className="text-muted-foreground"> fear public speaking — ConvoFlow helps you beat it!</span>
+          </p>
+        </div>
+        
         <DialogHeader className="p-6 pb-4 text-center">
           <DialogTitle className="text-2xl font-bold text-foreground">
             What type of conversation are you planning?
