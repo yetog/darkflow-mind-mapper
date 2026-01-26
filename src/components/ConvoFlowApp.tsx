@@ -6,6 +6,7 @@ import TimelineView from '@/components/views/TimelineView';
 import CarouselView from '@/components/views/CarouselView';
 import TacticsBrowser from '@/components/tactics/TacticsBrowser';
 import CoachPanel from '@/components/coach/CoachPanel';
+import WelcomeModal from '@/components/WelcomeModal';
 import { ViewMode, ConversationType, ConversationPlan, ConversationNode } from '@/types/conversation';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 
@@ -14,6 +15,7 @@ const ConvoFlowApp = () => {
   const [activeView, setActiveView] = useState<ViewMode>('mindmap');
   const [showTactics, setShowTactics] = useState(false);
   const [showCoach, setShowCoach] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   
   // Current plan state
   const [currentPlan, setCurrentPlan] = useState<ConversationPlan>({
@@ -83,6 +85,31 @@ const ConvoFlowApp = () => {
     setCurrentPlan(prev => ({ ...prev, nodes, updatedAt: new Date() }));
   };
 
+  const handleNewPlan = () => {
+    setShowWelcome(true);
+  };
+
+  const handleSelectType = (type: ConversationType) => {
+    const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+    setCurrentPlan({
+      id: `plan-${Date.now()}`,
+      title: `New ${typeLabel}`,
+      type,
+      description: '',
+      duration: 30,
+      nodes: [
+        {
+          id: 'root',
+          label: `New ${typeLabel}`,
+          type: 'topic',
+          children: [],
+        },
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'mindmap':
@@ -114,6 +141,13 @@ const ConvoFlowApp = () => {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
+      {/* Welcome Modal */}
+      <WelcomeModal
+        open={showWelcome}
+        onOpenChange={setShowWelcome}
+        onSelectType={handleSelectType}
+      />
+
       {/* Sidebar */}
       <Sidebar
         isCollapsed={sidebarCollapsed}
@@ -122,6 +156,9 @@ const ConvoFlowApp = () => {
         onViewChange={setActiveView}
         onOpenTactics={() => setShowTactics(true)}
         onOpenCoach={() => setShowCoach(true)}
+        onNewPlan={handleNewPlan}
+        currentType={currentPlan.type}
+        onTypeChange={handleTypeChange}
       />
 
       {/* Main Content */}
@@ -155,6 +192,7 @@ const ConvoFlowApp = () => {
           <CoachPanel 
             plan={currentPlan}
             onClose={() => setShowCoach(false)}
+            onTypeChange={handleTypeChange}
           />
         </SheetContent>
       </Sheet>

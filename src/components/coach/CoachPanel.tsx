@@ -15,13 +15,15 @@ import {
   User,
   Sparkles,
   Lightbulb,
+  HelpCircle,
 } from 'lucide-react';
-import { ConversationPlan } from '@/types/conversation';
+import { ConversationPlan, ConversationType, CONVERSATION_TYPES } from '@/types/conversation';
 import { cn } from '@/lib/utils';
 
 interface CoachPanelProps {
   plan: ConversationPlan;
   onClose: () => void;
+  onTypeChange?: (type: ConversationType) => void;
 }
 
 interface Message {
@@ -29,9 +31,10 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  typeRecommendation?: ConversationType;
 }
 
-const CoachPanel = ({ plan, onClose }: CoachPanelProps) => {
+const CoachPanel = ({ plan, onClose, onTypeChange }: CoachPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -44,8 +47,11 @@ const CoachPanel = ({ plan, onClose }: CoachPanelProps) => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [consultationStep, setConsultationStep] = useState<number | null>(null);
+  const [consultationAnswers, setConsultationAnswers] = useState<string[]>([]);
 
   const quickActions = [
+    { label: 'Help me choose a conversation type', icon: HelpCircle },
     { label: 'Suggest an opening hook', icon: Sparkles },
     { label: 'Review my structure', icon: Lightbulb },
     { label: 'Practice Q&A', icon: Bot },
@@ -62,20 +68,83 @@ const CoachPanel = ({ plan, onClose }: CoachPanelProps) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
+
+    // Handle consultation flow
+    if (consultationStep !== null) {
+      const newAnswers = [...consultationAnswers, currentInput];
+      setConsultationAnswers(newAnswers);
+      
+      setTimeout(() => {
+        const nextStep = consultationStep + 1;
+        const consultationResponse = getConsultationResponse(nextStep, newAnswers, onTypeChange);
+        
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: consultationResponse.content,
+          timestamp: new Date(),
+          typeRecommendation: consultationResponse.recommendation,
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+        
+        if (consultationResponse.complete) {
+          setConsultationStep(null);
+          setConsultationAnswers([]);
+        } else {
+          setConsultationStep(nextStep);
+        }
+        setIsLoading(false);
+      }, 1000);
+      return;
+    }
+
+    // Check if user wants to start consultation
+    if (currentInput.toLowerCase().includes('help me choose') || 
+        currentInput.toLowerCase().includes('which type') ||
+        currentInput.toLowerCase().includes('what type')) {
+      setConsultationStep(0);
+      setTimeout(() => {
+        const consultationResponse = getConsultationResponse(0, [], onTypeChange);
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: consultationResponse.content,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+        setIsLoading(false);
+      }, 1000);
+      return;
+    }
 
     // Simulate AI response (will be replaced with actual API call)
     setTimeout(() => {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: getSimulatedResponse(inputValue, plan),
+        content: getSimulatedResponse(currentInput, plan),
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, assistantMessage]);
       setIsLoading(false);
     }, 1000);
+  };
+
+  const handleApplyRecommendation = (type: ConversationType) => {
+    if (onTypeChange) {
+      onTypeChange(type);
+      const typeConfig = CONVERSATION_TYPES.find(t => t.id === type);
+      const assistantMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `Great choice! I've set your conversation type to **${typeConfig?.label}**. Now let's make your ${typeConfig?.label.toLowerCase()} shine! What would you like to work on first?`,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+    }
   };
 
   const handleQuickAction = (action: string) => {
@@ -174,6 +243,15 @@ const CoachPanel = ({ plan, onClose }: CoachPanelProps) => {
                 )}
               >
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                {message.typeRecommendation && (
+                  <Button
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => handleApplyRecommendation(message.typeRecommendation!)}
+                  >
+                    Apply {CONVERSATION_TYPES.find(t => t.id === message.typeRecommendation)?.label} Type
+                  </Button>
+                )}
                 <span className="text-xs opacity-60 mt-1 block">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -238,6 +316,66 @@ const CoachPanel = ({ plan, onClose }: CoachPanelProps) => {
       </div>
     </div>
   );
+};
+
+// Consultation flow for choosing conversation type
+interface ConsultationResponse {
+  content: string;
+  complete: boolean;
+  recommendation?: ConversationType;
+}
+
+const CONSULTATION_QUESTIONS = [
+  "Let me help you find the right conversation type! First, tell me: **What's the occasion?** Is it formal (business/professional) or casual (social/informal)?",
+  "Got it! **How many people will be involved?**\n• Just 1-2 others\n• A small group (3-10)\n• A larger audience (10+)",
+  "**What's your main goal for this conversation?**\n• Build relationships or network\n• Make decisions or align on next steps\n• Inform, present, or persuade\n• Discuss, debate, or share perspectives\n• Teach or train others",
+  "Last question: **Are you leading/presenting or participating/collaborating?**",
+];
+
+const getConsultationResponse = (
+  step: number, 
+  answers: string[], 
+  onTypeChange?: (type: ConversationType) => void
+): ConsultationResponse => {
+  if (step < CONSULTATION_QUESTIONS.length) {
+    return {
+      content: CONSULTATION_QUESTIONS[step],
+      complete: false,
+    };
+  }
+
+  // Analyze answers to recommend type
+  const allAnswers = answers.join(' ').toLowerCase();
+  let recommendation: ConversationType = 'meeting';
+  let reasoning = '';
+
+  if (allAnswers.includes('teach') || allAnswers.includes('train') || allAnswers.includes('workshop')) {
+    recommendation = 'lesson';
+    reasoning = "Based on your goals of teaching or training, a **Lesson** format would work best. This gives you structure for educational content with clear learning objectives.";
+  } else if (allAnswers.includes('present') || allAnswers.includes('persuade') || allAnswers.includes('inform') || allAnswers.includes('leading')) {
+    if (allAnswers.includes('larger') || allAnswers.includes('10+')) {
+      recommendation = 'presentation';
+      reasoning = "You're presenting to a larger group with a persuasive or informative goal. A **Presentation** format will help you structure your narrative arc and key messages.";
+    } else {
+      recommendation = 'meeting';
+      reasoning = "You're leading a focused session with a smaller group. A **Meeting** format gives you flexibility to inform and discuss while driving toward decisions.";
+    }
+  } else if (allAnswers.includes('discuss') || allAnswers.includes('debate') || allAnswers.includes('perspectives')) {
+    recommendation = 'panel';
+    reasoning = "You're looking to explore multiple perspectives and facilitate discussion. A **Panel** format helps structure balanced discourse and Q&A.";
+  } else if (allAnswers.includes('casual') || allAnswers.includes('network') || allAnswers.includes('relationship')) {
+    recommendation = 'gathering';
+    reasoning = "This sounds like a social setting focused on connection. A **Gathering** format gives you conversation starters and networking tactics.";
+  } else if (allAnswers.includes('decision') || allAnswers.includes('align') || allAnswers.includes('small')) {
+    recommendation = 'meeting';
+    reasoning = "You're focused on alignment and decisions with a smaller group. A **Meeting** format provides structure for productive collaboration.";
+  }
+
+  return {
+    content: `${reasoning}\n\n🎯 **My recommendation: ${CONVERSATION_TYPES.find(t => t.id === recommendation)?.label}**\n\nClick the button below to apply this type, or tell me more if you'd like to explore other options.`,
+    complete: true,
+    recommendation,
+  };
 };
 
 // Temporary simulated responses

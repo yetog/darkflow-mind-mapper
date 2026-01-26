@@ -5,6 +5,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { ThemeToggle } from '@/components/theme-toggle';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   LayoutDashboard,
   Map,
   Clock,
@@ -15,8 +21,12 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
+  Users,
+  Calendar,
+  Presentation,
+  GraduationCap,
 } from 'lucide-react';
-import { ViewMode } from '@/types/conversation';
+import { ViewMode, ConversationType, CONVERSATION_TYPES } from '@/types/conversation';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -25,7 +35,34 @@ interface SidebarProps {
   onViewChange: (view: ViewMode) => void;
   onOpenTactics: () => void;
   onOpenCoach: () => void;
+  onNewPlan?: () => void;
+  currentType?: ConversationType;
+  onTypeChange?: (type: ConversationType) => void;
 }
+
+const TYPE_ICON_MAP = {
+  Users,
+  Calendar,
+  Presentation,
+  MessageSquare: MessageCircle,
+  GraduationCap,
+};
+
+const TYPE_COLORS: Record<ConversationType, string> = {
+  gathering: 'bg-amber-500/20 text-amber-500 hover:bg-amber-500/30',
+  meeting: 'bg-blue-500/20 text-blue-500 hover:bg-blue-500/30',
+  presentation: 'bg-purple-500/20 text-purple-500 hover:bg-purple-500/30',
+  panel: 'bg-teal-500/20 text-teal-500 hover:bg-teal-500/30',
+  lesson: 'bg-green-500/20 text-green-500 hover:bg-green-500/30',
+};
+
+const TYPE_ACTIVE_COLORS: Record<ConversationType, string> = {
+  gathering: 'bg-amber-500 text-white',
+  meeting: 'bg-blue-500 text-white',
+  presentation: 'bg-purple-500 text-white',
+  panel: 'bg-teal-500 text-white',
+  lesson: 'bg-green-500 text-white',
+};
 
 const Sidebar = ({
   isCollapsed,
@@ -34,6 +71,9 @@ const Sidebar = ({
   onViewChange,
   onOpenTactics,
   onOpenCoach,
+  onNewPlan,
+  currentType,
+  onTypeChange,
 }: SidebarProps) => {
   const viewItems = [
     { id: 'mindmap' as ViewMode, label: 'Mind Map', icon: Map },
@@ -85,11 +125,84 @@ const Sidebar = ({
               'w-full gap-2',
               isCollapsed && 'px-0'
             )}
+            onClick={onNewPlan}
           >
             <Plus className="h-4 w-4" />
             {!isCollapsed && 'New Plan'}
           </Button>
         </div>
+
+        {/* Conversation Types Quick Switch */}
+        {!isCollapsed && currentType && onTypeChange && (
+          <>
+            <Separator className="my-4" />
+            <div className="px-3">
+              <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Conversation Type
+              </h3>
+              <TooltipProvider>
+                <div className="flex flex-wrap gap-1.5 px-2">
+                  {CONVERSATION_TYPES.map((type) => {
+                    const Icon = TYPE_ICON_MAP[type.icon as keyof typeof TYPE_ICON_MAP];
+                    const isActive = currentType === type.id;
+                    
+                    return (
+                      <Tooltip key={type.id}>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => onTypeChange(type.id)}
+                            className={cn(
+                              'p-2 rounded-lg transition-all',
+                              isActive 
+                                ? TYPE_ACTIVE_COLORS[type.id]
+                                : TYPE_COLORS[type.id]
+                            )}
+                          >
+                            <Icon className="h-4 w-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          <p className="font-medium">{type.label}</p>
+                          <p className="text-xs text-muted-foreground">{type.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              </TooltipProvider>
+            </div>
+          </>
+        )}
+        
+        {/* Collapsed view - just show active type icon */}
+        {isCollapsed && currentType && onTypeChange && (
+          <>
+            <Separator className="my-4" />
+            <div className="px-3 flex justify-center">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className={cn(
+                      'p-2 rounded-lg',
+                      TYPE_ACTIVE_COLORS[currentType]
+                    )}>
+                      {(() => {
+                        const typeConfig = CONVERSATION_TYPES.find(t => t.id === currentType);
+                        const Icon = typeConfig ? TYPE_ICON_MAP[typeConfig.icon as keyof typeof TYPE_ICON_MAP] : Users;
+                        return <Icon className="h-4 w-4" />;
+                      })()}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p className="font-medium">
+                      {CONVERSATION_TYPES.find(t => t.id === currentType)?.label}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </>
+        )}
 
         <Separator className="my-4" />
 
