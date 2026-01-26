@@ -1,7 +1,7 @@
-import MindMapGenerator from '@/components/MindMapGenerator';
+import ConvoFlowApp from '@/components/ConvoFlowApp';
 
 const Index = () => {
-  return <MindMapGenerator />;
+  return <ConvoFlowApp />;
 };
 
 export default Index;

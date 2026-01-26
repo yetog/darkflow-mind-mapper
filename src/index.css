@@ -1,110 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* ConvoFlow Design System
+   Professional, enterprise-grade design with conversation-type accents
+   All colors are HSL format
 */
 
 @layer base {
   :root {
-    /* Apple Silicon inspired dark theme */
-    --background: 220 13% 7%;
-    --foreground: 213 31% 91%;
+    /* Core Background - Deep slate for professional feel */
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
 
-    --card: 220 13% 9%;
-    --card-foreground: 213 31% 91%;
+    /* Card surfaces with subtle depth */
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 96%;
 
-    --popover: 220 13% 9%;
-    --popover-foreground: 213 31% 91%;
+    --popover: 222 47% 10%;
+    --popover-foreground: 210 40% 96%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 220 13% 7%;
+    /* Primary - Professional indigo */
+    --primary: 226 70% 55%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 13% 12%;
-    --secondary-foreground: 213 31% 91%;
+    /* Secondary - Muted surfaces */
+    --secondary: 222 47% 12%;
+    --secondary-foreground: 210 40% 96%;
 
-    --muted: 220 13% 12%;
-    --muted-foreground: 216 12% 54%;
+    --muted: 222 47% 14%;
+    --muted-foreground: 215 20% 55%;
 
-    --accent: 220 13% 15%;
-    --accent-foreground: 213 31% 91%;
+    --accent: 222 47% 16%;
+    --accent-foreground: 210 40% 96%;
 
-    --destructive: 0 63% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 15%;
-    --input: 220 13% 15%;
-    --ring: 217 91% 60%;
+    --border: 222 47% 16%;
+    --input: 222 47% 14%;
+    --ring: 226 70% 55%;
 
-    /* Apple Silicon gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(224 76% 48%));
-    --gradient-surface: linear-gradient(135deg, hsl(220 13% 9%), hsl(220 13% 12%));
-    --gradient-subtle: linear-gradient(180deg, hsl(220 13% 9%), hsl(220 13% 7%));
+    --radius: 0.625rem;
+
+    /* Conversation Type Colors */
+    --gathering-color: 38 92% 50%;    /* Amber */
+    --meeting-color: 221 83% 53%;     /* Blue */
+    --presentation-color: 262 83% 58%; /* Purple */
+    --panel-color: 172 66% 50%;       /* Teal */
+    --lesson-color: 142 71% 45%;      /* Green */
+
+    /* Tactic Category Colors */
+    --tactic-concept: 239 84% 67%;     /* Indigo */
+    --tactic-explore: 192 91% 36%;     /* Cyan */
+    --tactic-character: 38 92% 50%;    /* Amber */
+    --tactic-function: 142 71% 45%;    /* Green */
+    --tactic-structure: 262 83% 58%;   /* Purple */
+    --tactic-style: 350 89% 60%;       /* Rose */
+    --tactic-organize: 25 95% 53%;     /* Orange */
+    --tactic-recipe: 172 66% 50%;      /* Teal */
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(226 70% 55%), hsl(262 83% 58%));
+    --gradient-surface: linear-gradient(180deg, hsl(222 47% 10%), hsl(222 47% 6%));
+    --gradient-glow: radial-gradient(circle at 50% 0%, hsla(226, 70%, 55%, 0.15), transparent 50%);
     
     /* Glass effect */
-    --glass-bg: hsla(220, 13%, 9%, 0.8);
-    --glass-border: hsla(213, 31%, 91%, 0.1);
+    --glass-bg: hsla(222, 47%, 10%, 0.8);
+    --glass-border: hsla(210, 40%, 96%, 0.08);
     
     /* Shadows */
-    --shadow-elegant: 0 8px 32px hsla(217, 91%, 60%, 0.1);
-    --shadow-glow: 0 0 32px hsla(217, 91%, 60%, 0.2);
+    --shadow-sm: 0 1px 2px hsla(0, 0%, 0%, 0.3);
+    --shadow-md: 0 4px 16px hsla(0, 0%, 0%, 0.4);
+    --shadow-lg: 0 8px 32px hsla(0, 0%, 0%, 0.5);
+    --shadow-glow: 0 0 24px hsla(226, 70%, 55%, 0.25);
+    --shadow-glow-strong: 0 0 40px hsla(226, 70%, 55%, 0.4);
 
-    --radius: 0.75rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar */
+    --sidebar-background: 222 47% 7%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 226 70% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 47% 14%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 47% 14%;
+    --sidebar-ring: 226 70% 55%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode is the default, so these are the same */
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+  }
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+  /* Light mode overrides for accessibility */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --card: 0 0% 98%;
+    --card-foreground: 222 47% 11%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --primary: 226 70% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --muted: 220 14% 95%;
+    --muted-foreground: 220 9% 46%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --accent: 220 14% 93%;
+    --accent-foreground: 222 47% 11%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+
+    --glass-bg: hsla(0, 0%, 100%, 0.9);
+    --glass-border: hsla(222, 47%, 11%, 0.08);
+
+    --shadow-sm: 0 1px 2px hsla(0, 0%, 0%, 0.05);
+    --shadow-md: 0 4px 16px hsla(0, 0%, 0%, 0.1);
+    --shadow-lg: 0 8px 32px hsla(0, 0%, 0%, 0.15);
+    --shadow-glow: 0 0 24px hsla(226, 70%, 55%, 0.15);
   }
 }
 
@@ -114,15 +137,24 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+
+  /* Typography scale */
+  h1 { @apply text-3xl font-semibold tracking-tight; }
+  h2 { @apply text-2xl font-semibold tracking-tight; }
+  h3 { @apply text-xl font-semibold; }
+  h4 { @apply text-lg font-medium; }
 }
 
 @layer components {
+  /* Glass card effect */
   .glass-card {
-    @apply bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-xl;
+    @apply bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-xl rounded-lg;
   }
   
+  /* Gradient backgrounds */
   .gradient-primary {
     background: var(--gradient-primary);
   }
@@ -130,20 +162,65 @@ All colors MUST be HSL.
   .gradient-surface {
     background: var(--gradient-surface);
   }
-  
-  .shadow-elegant {
-    box-shadow: var(--shadow-elegant);
+
+  .gradient-glow {
+    background: var(--gradient-glow);
   }
   
+  /* Shadow utilities */
   .shadow-glow {
     box-shadow: var(--shadow-glow);
   }
-  
-  .mind-map-node {
-    @apply transition-all duration-300 hover:scale-105 cursor-pointer;
+
+  .shadow-glow-strong {
+    box-shadow: var(--shadow-glow-strong);
   }
   
-  .mind-map-node:hover {
-    @apply shadow-glow;
+  /* Mind map and visualization nodes */
+  .plan-node {
+    @apply transition-all duration-200 cursor-pointer rounded-lg;
+  }
+  
+  .plan-node:hover {
+    @apply shadow-glow scale-[1.02];
+  }
+
+  .plan-node.selected {
+    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+
+  /* Conversation type badges */
+  .badge-gathering { @apply bg-amber-500/20 text-amber-400 border-amber-500/30; }
+  .badge-meeting { @apply bg-blue-500/20 text-blue-400 border-blue-500/30; }
+  .badge-presentation { @apply bg-purple-500/20 text-purple-400 border-purple-500/30; }
+  .badge-panel { @apply bg-teal-500/20 text-teal-400 border-teal-500/30; }
+  .badge-lesson { @apply bg-green-500/20 text-green-400 border-green-500/30; }
+
+  /* Tactic category badges */
+  .badge-concept { @apply bg-indigo-500/20 text-indigo-400 border-indigo-500/30; }
+  .badge-explore { @apply bg-cyan-500/20 text-cyan-400 border-cyan-500/30; }
+  .badge-character { @apply bg-amber-500/20 text-amber-400 border-amber-500/30; }
+  .badge-function { @apply bg-green-500/20 text-green-400 border-green-500/30; }
+  .badge-structure { @apply bg-purple-500/20 text-purple-400 border-purple-500/30; }
+  .badge-style { @apply bg-rose-500/20 text-rose-400 border-rose-500/30; }
+  .badge-organize { @apply bg-orange-500/20 text-orange-400 border-orange-500/30; }
+  .badge-recipe { @apply bg-teal-500/20 text-teal-400 border-teal-500/30; }
+
+  /* Scrollbar styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
   }
 }
