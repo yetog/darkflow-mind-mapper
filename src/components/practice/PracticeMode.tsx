@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { FadeInSection, PulsingElement } from '@/components/ui/animated-card';
 import { 
   Mic, 
   Square, 
@@ -14,6 +15,9 @@ import {
   Volume2,
   CheckCircle,
   AlertCircle,
+  Target,
+  Zap,
+  Clock,
 } from 'lucide-react';
 import { AudioRecorder, isRecordingSupported } from '@/services/audio-recorder';
 import { SpeechTranscriber, isTranscriptionSupported } from '@/services/transcription';
@@ -155,16 +159,18 @@ const PracticeMode: React.FC<PracticeModeProps> = ({ onClose }) => {
   if (!isSupported) {
     return (
       <div className="h-full flex items-center justify-center p-8">
-        <Card className="max-w-md">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="h-12 w-12 text-amber-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Browser Not Supported</h3>
-            <p className="text-muted-foreground">
-              Speech recording requires a modern browser with microphone access and Web Speech API support.
-              Please try Chrome, Edge, or Safari.
-            </p>
-          </CardContent>
-        </Card>
+        <FadeInSection direction="up">
+          <Card className="max-w-md">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="h-12 w-12 text-amber-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Browser Not Supported</h3>
+              <p className="text-muted-foreground">
+                Speech recording requires a modern browser with microphone access and Web Speech API support.
+                Please try Chrome, Edge, or Safari.
+              </p>
+            </CardContent>
+          </Card>
+        </FadeInSection>
       </div>
     );
   }
@@ -183,111 +189,166 @@ const PracticeMode: React.FC<PracticeModeProps> = ({ onClose }) => {
     <div className="h-full flex flex-col items-center justify-center p-8 bg-gradient-to-b from-background to-muted/20">
       <div className="w-full max-w-2xl space-y-8">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold">Practice Mode</h2>
-          <p className="text-muted-foreground">
-            {recordingState === 'idle' && 'Click the microphone to start practicing'}
-            {recordingState === 'recording' && 'Speak naturally - we\'re transcribing and analyzing'}
-            {recordingState === 'processing' && 'Analyzing your speech...'}
-          </p>
-        </div>
+        <FadeInSection direction="up" delay={0}>
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-bold">Practice Mode</h2>
+            <p className="text-muted-foreground">
+              {recordingState === 'idle' && 'Click the microphone to start practicing'}
+              {recordingState === 'recording' && 'Speak naturally - we\'re transcribing and analyzing'}
+              {recordingState === 'processing' && 'Analyzing your speech...'}
+            </p>
+          </div>
+        </FadeInSection>
 
         {/* Timer */}
-        <div className="text-center">
-          <span className="text-5xl font-mono font-bold text-foreground">
-            {formatTime(duration)}
-          </span>
-        </div>
+        <FadeInSection direction="up" delay={0.1}>
+          <div className="text-center">
+            <motion.span 
+              className="text-5xl font-mono font-bold text-foreground"
+              animate={recordingState === 'recording' ? { 
+                scale: [1, 1.02, 1],
+              } : {}}
+              transition={{ duration: 1, repeat: Infinity }}
+            >
+              {formatTime(duration)}
+            </motion.span>
+          </div>
+        </FadeInSection>
 
         {/* Audio Visualizer */}
-        <div className="h-24 flex items-center justify-center">
-          <AudioVisualizer 
-            isActive={recordingState === 'recording'} 
-            level={audioLevel} 
-          />
-        </div>
+        <FadeInSection direction="up" delay={0.2}>
+          <div className="h-24 flex items-center justify-center">
+            <AudioVisualizer 
+              isActive={recordingState === 'recording'} 
+              level={audioLevel} 
+            />
+          </div>
+        </FadeInSection>
 
         {/* Main Recording Button */}
-        <div className="flex justify-center gap-4">
-          {recordingState === 'idle' && (
-            <Button
-              size="lg"
-              className="h-20 w-20 rounded-full"
-              onClick={startRecording}
-            >
-              <Mic className="h-8 w-8" />
-            </Button>
-          )}
+        <FadeInSection direction="up" delay={0.3}>
+          <div className="flex justify-center gap-4">
+            {recordingState === 'idle' && (
+              <PulsingElement enabled={true}>
+                <Button
+                  size="lg"
+                  className="h-20 w-20 rounded-full"
+                  onClick={startRecording}
+                >
+                  <Mic className="h-8 w-8" />
+                </Button>
+              </PulsingElement>
+            )}
 
-          {recordingState === 'recording' && (
-            <Button
-              size="lg"
-              variant="destructive"
-              className="h-20 w-20 rounded-full"
-              onClick={stopRecording}
-            >
-              <Square className="h-8 w-8" />
-            </Button>
-          )}
+            {recordingState === 'recording' && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring' }}
+              >
+                <Button
+                  size="lg"
+                  variant="destructive"
+                  className="h-20 w-20 rounded-full"
+                  onClick={stopRecording}
+                >
+                  <Square className="h-8 w-8" />
+                </Button>
+              </motion.div>
+            )}
 
-          {recordingState === 'processing' && (
-            <Button
-              size="lg"
-              className="h-20 w-20 rounded-full"
-              disabled
-            >
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </Button>
-          )}
-        </div>
+            {recordingState === 'processing' && (
+              <Button
+                size="lg"
+                className="h-20 w-20 rounded-full"
+                disabled
+              >
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </Button>
+            )}
+          </div>
+        </FadeInSection>
 
         {/* Live Transcript */}
-        {(recordingState === 'recording' || transcript) && (
-          <Card className="bg-card/50 backdrop-blur">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Volume2 className="h-4 w-4 text-primary" />
-                Live Transcript
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm min-h-[4rem]">
-                {transcript}
-                <span className="text-muted-foreground italic">{interimTranscript}</span>
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        <AnimatePresence>
+          {(recordingState === 'recording' || transcript) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <Card className="bg-card/50 backdrop-blur">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Volume2 className="h-4 w-4 text-primary" />
+                    Live Transcript
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm min-h-[4rem]">
+                    {transcript}
+                    <span className="text-muted-foreground italic">{interimTranscript}</span>
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Error Display */}
-        {error && (
-          <Card className="border-destructive bg-destructive/10">
-            <CardContent className="py-4 flex items-center gap-3">
-              <AlertCircle className="h-5 w-5 text-destructive" />
-              <p className="text-sm text-destructive">{error}</p>
-              <Button variant="ghost" size="sm" onClick={resetRecording} className="ml-auto">
-                Try Again
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <Card className="border-destructive bg-destructive/10">
+                <CardContent className="py-4 flex items-center gap-3">
+                  <AlertCircle className="h-5 w-5 text-destructive" />
+                  <p className="text-sm text-destructive">{error}</p>
+                  <Button variant="ghost" size="sm" onClick={resetRecording} className="ml-auto">
+                    Try Again
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Recording Tips */}
         {recordingState === 'idle' && (
-          <div className="grid grid-cols-3 gap-4 text-center text-sm text-muted-foreground">
-            <div className="space-y-1">
-              <div className="text-2xl">🎯</div>
-              <p>Speak clearly</p>
+          <FadeInSection direction="up" delay={0.4}>
+            <div className="grid grid-cols-3 gap-4 text-center text-sm text-muted-foreground">
+              <motion.div 
+                className="space-y-1"
+                whileHover={{ scale: 1.05 }}
+              >
+                <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Target className="w-6 h-6 text-primary" />
+                </div>
+                <p>Speak clearly</p>
+              </motion.div>
+              <motion.div 
+                className="space-y-1"
+                whileHover={{ scale: 1.05 }}
+              >
+                <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-primary" />
+                </div>
+                <p>Take your time</p>
+              </motion.div>
+              <motion.div 
+                className="space-y-1"
+                whileHover={{ scale: 1.05 }}
+              >
+                <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-primary" />
+                </div>
+                <p>Find a quiet spot</p>
+              </motion.div>
             </div>
-            <div className="space-y-1">
-              <div className="text-2xl">⏱️</div>
-              <p>Take your time</p>
-            </div>
-            <div className="space-y-1">
-              <div className="text-2xl">🔇</div>
-              <p>Find a quiet spot</p>
-            </div>
-          </div>
+          </FadeInSection>
         )}
       </div>
     </div>

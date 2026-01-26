@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar, { AppSection } from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import MindMapView from '@/components/views/MindMapView';
@@ -115,6 +116,19 @@ const ConvoFlowApp = () => {
     });
   };
 
+  const handleOpenCoach = () => {
+    setShowWelcome(false);
+    setShowCoach(true);
+  };
+
+  const handleOpenFearModule = () => {
+    setActiveSection('fear-module');
+  };
+
+  const handleSectionChange = (section: AppSection) => {
+    setActiveSection(section);
+  };
+
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'dashboard':
@@ -122,7 +136,7 @@ const ConvoFlowApp = () => {
       case 'practice':
         return <PracticeMode />;
       case 'lessons':
-        return <LessonsBrowser />;
+        return <LessonsBrowser onOpenFearModule={handleOpenFearModule} />;
       case 'fear-module':
         return <FearModule />;
       case 'plan':
@@ -183,6 +197,7 @@ const ConvoFlowApp = () => {
         open={showWelcome}
         onOpenChange={setShowWelcome}
         onSelectType={handleSelectType}
+        onOpenCoach={handleOpenCoach}
       />
 
       {/* Sidebar */}
@@ -197,7 +212,7 @@ const ConvoFlowApp = () => {
         currentType={currentPlan.type}
         onTypeChange={handleTypeChange}
         activeSection={activeSection}
-        onSectionChange={setActiveSection}
+        onSectionChange={handleSectionChange}
       />
 
       {/* Main Content */}
@@ -208,12 +223,23 @@ const ConvoFlowApp = () => {
           onTypeChange={activeSection === 'plan' ? handleTypeChange : undefined}
         />
 
-        {/* View Area */}
+        {/* View Area with Page Transitions */}
         <main className="flex-1 overflow-hidden relative">
           {activeSection === 'plan' && (
             <div className="absolute inset-0 gradient-glow pointer-events-none" />
           )}
-          {renderActiveSection()}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSection + activeView}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="h-full"
+            >
+              {renderActiveSection()}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
 
