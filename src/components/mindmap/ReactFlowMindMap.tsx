@@ -17,6 +17,7 @@ import '@xyflow/react/dist/style.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import MindMapNode, { MindMapNodeData } from './MindMapNode';
 import AnimatedEdge from './AnimatedEdge';
+import NodeDetailsPanel from '@/components/builder/NodeDetailsPanel';
 import { ConversationNode } from '@/types/conversation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +44,38 @@ const nodeTypes = {
 
 const edgeTypes = {
   animated: AnimatedEdge,
+};
+
+// Helper to find a node by ID in the tree
+const findNodeById = (nodes: ConversationNode[], id: string): ConversationNode | null => {
+  for (const node of nodes) {
+    if (node.id === id) return node;
+    if (node.children) {
+      const found = findNodeById(node.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+// Helper to update a node in the tree
+const updateNodeInTree = (
+  nodes: ConversationNode[],
+  nodeId: string,
+  updates: Partial<ConversationNode>
+): ConversationNode[] => {
+  return nodes.map(node => {
+    if (node.id === nodeId) {
+      return { ...node, ...updates };
+    }
+    if (node.children) {
+      return {
+        ...node,
+        children: updateNodeInTree(node.children, nodeId, updates),
+      };
+    }
+    return node;
+  });
 };
 
 // Convert ConversationNode tree to ReactFlow nodes/edges
@@ -123,7 +156,12 @@ const ReactFlowMindMap = ({
   className 
 }: ReactFlowMindMapProps) => {
   const [showMinimap, setShowMinimap] = useState(true);
-  
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+  // Find the node being edited
+  const editingNode = editingNodeId ? findNodeById(conversationNodes, editingNodeId) : null;
+
   const callbacks = useMemo(() => ({
     onAddChild: (nodeId: string) => {
       const newNodeId = `node-${Date.now()}`;
@@ -163,9 +201,21 @@ const ReactFlowMindMap = ({
       onNodesUpdate(removeNode(conversationNodes));
     },
     onEdit: (nodeId: string) => {
+      setEditingNodeId(nodeId);
+      setIsPanelOpen(true);
       onNodeSelect?.(nodeId);
     },
   }), [conversationNodes, onNodesUpdate, onNodeSelect]);
+
+  const handleSaveNode = (nodeId: string, updates: Partial<ConversationNode>) => {
+    onNodesUpdate(updateNodeInTree(conversationNodes, nodeId, updates));
+  };
+
+  const handleDeleteNode = (nodeId: string) => {
+    callbacks.onDelete(nodeId);
+    setIsPanelOpen(false);
+    setEditingNodeId(null);
+  };
 
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
     () => convertToFlowElements(conversationNodes, callbacks),
@@ -289,6 +339,15 @@ const ReactFlowMindMap = ({
           )}
         </AnimatePresence>
       </ReactFlow>
+
+      {/* Node Details Panel */}
+      <NodeDetailsPanel
+        node={editingNode}
+        open={isPanelOpen}
+        onOpenChange={setIsPanelOpen}
+        onSave={handleSaveNode}
+        onDelete={handleDeleteNode}
+      />
     </div>
   );
 };

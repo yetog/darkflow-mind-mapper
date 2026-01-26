@@ -27,7 +27,6 @@ import {
   GraduationCap,
   Mic,
   BarChart3,
-  Heart,
 } from 'lucide-react';
 import { ViewMode, ConversationType, CONVERSATION_TYPES } from '@/types/conversation';
 
@@ -90,11 +89,11 @@ const Sidebar = ({
     { id: 'carousel' as ViewMode, label: 'Carousel', icon: Layers },
   ];
 
+  // Removed fear-module from here - it's now under Lessons
   const sectionItems = [
     { id: 'dashboard' as AppSection, label: 'Dashboard', icon: BarChart3 },
     { id: 'practice' as AppSection, label: 'Practice', icon: Mic },
     { id: 'lessons' as AppSection, label: 'Lessons', icon: GraduationCap },
-    { id: 'fear-module' as AppSection, label: 'Overcome Fear', icon: Heart },
     { id: 'plan' as AppSection, label: 'Plan', icon: Map },
   ];
 
@@ -280,6 +279,7 @@ const Sidebar = ({
         )}
 
         {/* Tools */}
+        <Separator className="my-4" />
         <div className="px-3">
           {!isCollapsed && (
             <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">

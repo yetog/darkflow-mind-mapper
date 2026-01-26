@@ -23,6 +23,7 @@ interface WelcomeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectType: (type: ConversationType) => void;
+  onOpenCoach?: () => void;
 }
 
 const ICON_MAP = {
@@ -57,10 +58,15 @@ const TYPE_ICON_COLORS: Record<ConversationType, string> = {
   lesson: 'text-green-500',
 };
 
-const WelcomeModal = ({ open, onOpenChange, onSelectType }: WelcomeModalProps) => {
+const WelcomeModal = ({ open, onOpenChange, onSelectType, onOpenCoach }: WelcomeModalProps) => {
   const handleSelect = (type: ConversationType) => {
     onSelectType(type);
     onOpenChange(false);
+  };
+
+  const handleAskCoach = () => {
+    onOpenChange(false);
+    onOpenCoach?.();
   };
 
   return (
@@ -144,9 +150,12 @@ const WelcomeModal = ({ open, onOpenChange, onSelectType }: WelcomeModalProps) =
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             Not sure which to pick?{' '}
-            <span className="text-primary cursor-pointer hover:underline">
+            <button 
+              onClick={handleAskCoach}
+              className="text-primary cursor-pointer hover:underline font-medium"
+            >
               Ask the AI Coach to help you decide
-            </span>
+            </button>
           </p>
         </div>
       </DialogContent>
