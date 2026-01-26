@@ -25,8 +25,12 @@ import {
   Calendar,
   Presentation,
   GraduationCap,
+  Mic,
+  BarChart3,
 } from 'lucide-react';
 import { ViewMode, ConversationType, CONVERSATION_TYPES } from '@/types/conversation';
+
+export type AppSection = 'plan' | 'practice' | 'lessons' | 'dashboard';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -38,6 +42,8 @@ interface SidebarProps {
   onNewPlan?: () => void;
   currentType?: ConversationType;
   onTypeChange?: (type: ConversationType) => void;
+  activeSection?: AppSection;
+  onSectionChange?: (section: AppSection) => void;
 }
 
 const TYPE_ICON_MAP = {
@@ -74,11 +80,20 @@ const Sidebar = ({
   onNewPlan,
   currentType,
   onTypeChange,
+  activeSection = 'plan',
+  onSectionChange,
 }: SidebarProps) => {
   const viewItems = [
     { id: 'mindmap' as ViewMode, label: 'Mind Map', icon: Map },
     { id: 'timeline' as ViewMode, label: 'Timeline', icon: Clock },
     { id: 'carousel' as ViewMode, label: 'Carousel', icon: Layers },
+  ];
+
+  const sectionItems = [
+    { id: 'dashboard' as AppSection, label: 'Dashboard', icon: BarChart3 },
+    { id: 'practice' as AppSection, label: 'Practice', icon: Mic },
+    { id: 'lessons' as AppSection, label: 'Lessons', icon: GraduationCap },
+    { id: 'plan' as AppSection, label: 'Plan', icon: Map },
   ];
 
   return (
@@ -132,8 +147,36 @@ const Sidebar = ({
           </Button>
         </div>
 
-        {/* Conversation Types Quick Switch */}
-        {!isCollapsed && currentType && onTypeChange && (
+        <Separator className="my-4" />
+
+        {/* Main Sections */}
+        <div className="px-3">
+          {!isCollapsed && (
+            <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Sections
+            </h3>
+          )}
+          <nav className="space-y-1">
+            {sectionItems.map((item) => (
+              <Button
+                key={item.id}
+                variant={activeSection === item.id ? 'secondary' : 'ghost'}
+                className={cn(
+                  'w-full justify-start gap-3',
+                  isCollapsed && 'justify-center px-0',
+                  item.id === 'practice' && 'text-primary'
+                )}
+                onClick={() => onSectionChange?.(item.id)}
+              >
+                <item.icon className="h-4 w-4 shrink-0" />
+                {!isCollapsed && <span>{item.label}</span>}
+              </Button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Conversation Types Quick Switch - only show when in Plan section */}
+        {activeSection === 'plan' && !isCollapsed && currentType && onTypeChange && (
           <>
             <Separator className="my-4" />
             <div className="px-3">
@@ -174,8 +217,8 @@ const Sidebar = ({
           </>
         )}
         
-        {/* Collapsed view - just show active type icon */}
-        {isCollapsed && currentType && onTypeChange && (
+        {/* Collapsed view - just show active type icon - only show when in Plan section */}
+        {activeSection === 'plan' && isCollapsed && currentType && onTypeChange && (
           <>
             <Separator className="my-4" />
             <div className="px-3 flex justify-center">
@@ -204,34 +247,35 @@ const Sidebar = ({
           </>
         )}
 
-        <Separator className="my-4" />
-
-        {/* View Modes */}
-        <div className="px-3">
-          {!isCollapsed && (
-            <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Views
-            </h3>
-          )}
-          <nav className="space-y-1">
-            {viewItems.map((item) => (
-              <Button
-                key={item.id}
-                variant={activeView === item.id ? 'secondary' : 'ghost'}
-                className={cn(
-                  'w-full justify-start gap-3',
-                  isCollapsed && 'justify-center px-0'
-                )}
-                onClick={() => onViewChange(item.id)}
-              >
-                <item.icon className="h-4 w-4 shrink-0" />
-                {!isCollapsed && <span>{item.label}</span>}
-              </Button>
-            ))}
-          </nav>
-        </div>
-
-        <Separator className="my-4" />
+        {/* View Modes - only show when in Plan section */}
+        {activeSection === 'plan' && (
+          <>
+            <Separator className="my-4" />
+            <div className="px-3">
+              {!isCollapsed && (
+                <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Views
+                </h3>
+              )}
+              <nav className="space-y-1">
+                {viewItems.map((item) => (
+                  <Button
+                    key={item.id}
+                    variant={activeView === item.id ? 'secondary' : 'ghost'}
+                    className={cn(
+                      'w-full justify-start gap-3',
+                      isCollapsed && 'justify-center px-0'
+                    )}
+                    onClick={() => onViewChange(item.id)}
+                  >
+                    <item.icon className="h-4 w-4 shrink-0" />
+                    {!isCollapsed && <span>{item.label}</span>}
+                  </Button>
+                ))}
+              </nav>
+            </div>
+          </>
+        )}
 
         {/* Tools */}
         <div className="px-3">

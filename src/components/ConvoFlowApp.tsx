@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Sidebar from '@/components/layout/Sidebar';
+import Sidebar, { AppSection } from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import MindMapView from '@/components/views/MindMapView';
 import TimelineView from '@/components/views/TimelineView';
@@ -7,12 +7,16 @@ import CarouselView from '@/components/views/CarouselView';
 import TacticsBrowser from '@/components/tactics/TacticsBrowser';
 import CoachPanel from '@/components/coach/CoachPanel';
 import WelcomeModal from '@/components/WelcomeModal';
+import PracticeMode from '@/components/practice/PracticeMode';
+import ProgressDashboard from '@/components/progress/ProgressDashboard';
+import LessonsBrowser from '@/components/lessons/LessonsBrowser';
 import { ViewMode, ConversationType, ConversationPlan, ConversationNode } from '@/types/conversation';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 
 const ConvoFlowApp = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeView, setActiveView] = useState<ViewMode>('mindmap');
+  const [activeSection, setActiveSection] = useState<AppSection>('plan');
   const [showTactics, setShowTactics] = useState(false);
   const [showCoach, setShowCoach] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -110,6 +114,20 @@ const ConvoFlowApp = () => {
     });
   };
 
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case 'dashboard':
+        return <ProgressDashboard onStartPractice={() => setActiveSection('practice')} />;
+      case 'practice':
+        return <PracticeMode />;
+      case 'lessons':
+        return <LessonsBrowser />;
+      case 'plan':
+      default:
+        return renderActiveView();
+    }
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'mindmap':
@@ -139,6 +157,20 @@ const ConvoFlowApp = () => {
     }
   };
 
+  const getSectionTitle = () => {
+    switch (activeSection) {
+      case 'dashboard':
+        return 'Dashboard';
+      case 'practice':
+        return 'Practice Mode';
+      case 'lessons':
+        return 'Lessons';
+      case 'plan':
+      default:
+        return currentPlan.title;
+    }
+  };
+
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       {/* Welcome Modal */}
@@ -159,20 +191,24 @@ const ConvoFlowApp = () => {
         onNewPlan={handleNewPlan}
         currentType={currentPlan.type}
         onTypeChange={handleTypeChange}
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
       />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header
-          title={currentPlan.title}
-          conversationType={currentPlan.type}
-          onTypeChange={handleTypeChange}
+          title={getSectionTitle()}
+          conversationType={activeSection === 'plan' ? currentPlan.type : undefined}
+          onTypeChange={activeSection === 'plan' ? handleTypeChange : undefined}
         />
 
         {/* View Area */}
         <main className="flex-1 overflow-hidden relative">
-          <div className="absolute inset-0 gradient-glow pointer-events-none" />
-          {renderActiveView()}
+          {activeSection === 'plan' && (
+            <div className="absolute inset-0 gradient-glow pointer-events-none" />
+          )}
+          {renderActiveSection()}
         </main>
       </div>
 
