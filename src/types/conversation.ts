@@ -58,6 +58,7 @@ export interface ConversationNode {
   duration?: number; // in minutes
   type: 'topic' | 'question' | 'transition' | 'activity' | 'milestone';
   emotionalTone?: 'positive' | 'neutral' | 'negative' | 'building' | 'resolving';
+  color?: 'blue' | 'purple' | 'teal' | 'amber' | 'green' | 'rose' | 'slate';
   tacticIds?: string[];
   speakerNotes?: string;
   children?: ConversationNode[];

@@ -101,12 +101,13 @@ const TacticDiagram = ({ tactic, className, interactive = true }: TacticDiagramP
 
   // Calculate bounds for fitView
   const fitViewOptions = useMemo(() => ({
-    padding: 0.3,
-    maxZoom: 1.2,
+    padding: 0.5,
+    maxZoom: 1.0,
+    minZoom: 0.5,
   }), []);
 
   return (
-    <div className={cn("w-full h-[300px] rounded-lg overflow-hidden bg-card/50 border border-border", className)}>
+    <div className={cn("w-full h-[400px] rounded-lg overflow-hidden bg-card/50 border border-border", className)}>
       <ReactFlow
         nodes={nodes}
         edges={edges}

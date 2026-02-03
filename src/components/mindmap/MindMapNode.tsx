@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Handle, Position, type Node, type NodeProps } from '@xyflow/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { 
   MessageCircle, 
@@ -10,9 +10,17 @@ import {
   FileText,
   Plus,
   Trash2,
-  GripVertical
+  GripVertical,
+  Palette,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+
+export type NodeColor = 'blue' | 'purple' | 'teal' | 'amber' | 'green' | 'rose' | 'slate';
 
 export interface MindMapNodeData extends Record<string, unknown> {
   label: string;
@@ -20,10 +28,12 @@ export interface MindMapNodeData extends Record<string, unknown> {
   type: 'topic' | 'question' | 'transition' | 'activity' | 'milestone';
   duration?: number;
   emotionalTone?: 'positive' | 'neutral' | 'negative' | 'building' | 'resolving';
+  customColor?: NodeColor;
   isRoot?: boolean;
   onAddChild?: (nodeId: string) => void;
   onDelete?: (nodeId: string) => void;
   onEdit?: (nodeId: string) => void;
+  onColorChange?: (nodeId: string, color: NodeColor) => void;
 }
 
 const nodeIcons = {
@@ -67,11 +77,60 @@ const nodeColors = {
   },
 };
 
+// Custom color overrides
+const customColorStyles: Record<NodeColor, typeof nodeColors['topic']> = {
+  blue: {
+    bg: 'from-blue-500/20 to-blue-500/10',
+    border: 'border-blue-500/50',
+    glow: 'shadow-blue-500/20',
+    icon: 'text-blue-400',
+  },
+  purple: {
+    bg: 'from-purple-500/20 to-purple-500/10',
+    border: 'border-purple-500/50',
+    glow: 'shadow-purple-500/20',
+    icon: 'text-purple-400',
+  },
+  teal: {
+    bg: 'from-teal-500/20 to-teal-500/10',
+    border: 'border-teal-500/50',
+    glow: 'shadow-teal-500/20',
+    icon: 'text-teal-400',
+  },
+  amber: {
+    bg: 'from-amber-500/20 to-amber-500/10',
+    border: 'border-amber-500/50',
+    glow: 'shadow-amber-500/20',
+    icon: 'text-amber-400',
+  },
+  green: {
+    bg: 'from-green-500/20 to-green-500/10',
+    border: 'border-green-500/50',
+    glow: 'shadow-green-500/20',
+    icon: 'text-green-400',
+  },
+  rose: {
+    bg: 'from-rose-500/20 to-rose-500/10',
+    border: 'border-rose-500/50',
+    glow: 'shadow-rose-500/20',
+    icon: 'text-rose-400',
+  },
+  slate: {
+    bg: 'from-slate-500/20 to-slate-500/10',
+    border: 'border-slate-500/50',
+    glow: 'shadow-slate-500/20',
+    icon: 'text-slate-400',
+  },
+};
+
 export type MindMapNodeType = Node<MindMapNodeData, 'mindmap'>;
 
 const MindMapNode = memo(({ id, data, selected }: NodeProps<MindMapNodeType>) => {
   const Icon = nodeIcons[data.type] || FileText;
-  const colors = nodeColors[data.type] || nodeColors.topic;
+  // Use custom color if set, otherwise use type-based color
+  const colors = data.customColor 
+    ? customColorStyles[data.customColor] 
+    : (nodeColors[data.type] || nodeColors.topic);
 
   return (
     <motion.div
@@ -157,6 +216,47 @@ const MindMapNode = memo(({ id, data, selected }: NodeProps<MindMapNodeType>) =>
           >
             <Plus className="w-3 h-3" />
           </Button>
+          
+          {/* Color Picker */}
+          {data.onColorChange && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="h-6 w-6 rounded-full shadow-md"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Palette className="w-3 h-3" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-2" side="right" align="center">
+                <div className="flex gap-1">
+                  {(['blue', 'purple', 'teal', 'amber', 'green', 'rose', 'slate'] as NodeColor[]).map((color) => (
+                    <button
+                      key={color}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        data.onColorChange?.(id, color);
+                      }}
+                      className={cn(
+                        'w-6 h-6 rounded-full border-2 transition-all hover:scale-110',
+                        color === 'blue' && 'bg-blue-500 border-blue-400',
+                        color === 'purple' && 'bg-purple-500 border-purple-400',
+                        color === 'teal' && 'bg-teal-500 border-teal-400',
+                        color === 'amber' && 'bg-amber-500 border-amber-400',
+                        color === 'green' && 'bg-green-500 border-green-400',
+                        color === 'rose' && 'bg-rose-500 border-rose-400',
+                        color === 'slate' && 'bg-slate-500 border-slate-400',
+                        data.customColor === color && 'ring-2 ring-white ring-offset-2 ring-offset-background'
+                      )}
+                    />
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+          
           {!data.isRoot && (
             <Button
               size="icon"
