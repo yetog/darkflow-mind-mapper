@@ -296,17 +296,6 @@ const Sidebar = ({
                 'w-full justify-start gap-3',
                 isCollapsed && 'justify-center px-0'
               )}
-              onClick={onOpenTactics}
-            >
-              <BookOpen className="h-4 w-4 shrink-0" />
-              {!isCollapsed && <span>Story Tactics</span>}
-            </Button>
-            <Button
-              variant="ghost"
-              className={cn(
-                'w-full justify-start gap-3',
-                isCollapsed && 'justify-center px-0'
-              )}
               onClick={onOpenCoach}
             >
               <MessageCircle className="h-4 w-4 shrink-0" />

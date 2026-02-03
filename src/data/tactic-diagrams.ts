@@ -495,23 +495,109 @@ export const generateDiagramFromSteps = (
   steps: string[], 
   shape: DiagramShape = 'linear'
 ): TacticDiagram => {
-  const spacing = 150;
-  const nodes: DiagramNode[] = steps.map((step, index) => ({
-    id: `step-${index + 1}`,
-    label: `Step ${index + 1}`,
-    description: step,
-    position: { 
-      x: index * spacing, 
-      y: shape === 'zigzag' ? (index % 2 === 0 ? 100 : 50) : 100 
-    },
-    type: index === 0 ? 'start' : index === steps.length - 1 ? 'end' : 'middle',
-  }));
+  // Increased spacing to prevent overlapping
+  const horizontalSpacing = 220;
+  const verticalSpacing = 120;
+  
+  const nodes: DiagramNode[] = steps.map((step, index) => {
+    let x = index * horizontalSpacing;
+    let y = 100;
+    
+    // Adjust positioning based on shape
+    switch (shape) {
+      case 'zigzag':
+        y = index % 2 === 0 ? 100 : 50;
+        break;
+      case 'arc':
+        // Create a gentle arc
+        const midpoint = (steps.length - 1) / 2;
+        const distFromMid = Math.abs(index - midpoint);
+        y = 100 + (midpoint - distFromMid) * 40;
+        break;
+      case 'circular':
+        // Spread in a circle
+        const angle = (index / steps.length) * Math.PI * 2 - Math.PI / 2;
+        const radius = Math.min(steps.length * 50, 200);
+        x = 250 + Math.cos(angle) * radius;
+        y = 200 + Math.sin(angle) * radius;
+        break;
+      case 'tree':
+        // Vertical tree layout
+        if (index === 0) {
+          x = 200;
+          y = 0;
+        } else {
+          const cols = Math.ceil(Math.sqrt(steps.length - 1));
+          const row = Math.floor((index - 1) / cols);
+          const col = (index - 1) % cols;
+          x = col * horizontalSpacing;
+          y = (row + 1) * verticalSpacing;
+        }
+        break;
+      case 'hub':
+        // Central node with spokes
+        if (index === 0) {
+          x = 250;
+          y = 150;
+        } else {
+          const spokeAngle = ((index - 1) / (steps.length - 1)) * Math.PI * 2 - Math.PI / 2;
+          x = 250 + Math.cos(spokeAngle) * 180;
+          y = 150 + Math.sin(spokeAngle) * 120;
+        }
+        break;
+      case 'parallel':
+        // Two parallel rows
+        const row = index % 2;
+        const col = Math.floor(index / 2);
+        x = col * horizontalSpacing;
+        y = row * verticalSpacing;
+        break;
+      default:
+        // linear - default horizontal
+        y = 100;
+    }
+    
+    return {
+      id: `step-${index + 1}`,
+      label: `Step ${index + 1}`,
+      description: step.length > 60 ? step.slice(0, 57) + '...' : step,
+      position: { x, y },
+      type: index === 0 ? 'start' : index === steps.length - 1 ? 'end' : 'middle',
+    };
+  });
 
-  const edges: DiagramEdge[] = steps.slice(0, -1).map((_, index) => ({
-    id: `e${index + 1}-${index + 2}`,
-    source: `step-${index + 1}`,
-    target: `step-${index + 2}`,
-  }));
+  // Generate edges
+  const edges: DiagramEdge[] = [];
+  
+  if (shape === 'hub' && steps.length > 1) {
+    // Connect all spokes to center
+    for (let i = 1; i < steps.length; i++) {
+      edges.push({
+        id: `e1-${i + 1}`,
+        source: 'step-1',
+        target: `step-${i + 1}`,
+      });
+    }
+  } else if (shape === 'circular' && steps.length > 2) {
+    // Connect in a circle
+    for (let i = 0; i < steps.length; i++) {
+      const next = (i + 1) % steps.length;
+      edges.push({
+        id: `e${i + 1}-${next + 1}`,
+        source: `step-${i + 1}`,
+        target: `step-${next + 1}`,
+      });
+    }
+  } else {
+    // Linear connections
+    for (let i = 0; i < steps.length - 1; i++) {
+      edges.push({
+        id: `e${i + 1}-${i + 2}`,
+        source: `step-${i + 1}`,
+        target: `step-${i + 2}`,
+      });
+    }
+  }
 
   return { tacticId, shape, nodes, edges };
 };

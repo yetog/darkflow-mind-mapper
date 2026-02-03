@@ -9,6 +9,7 @@ import ReactFlowMindMap from '@/components/mindmap/ReactFlowMindMap';
 import EmptyStateGuide from './EmptyStateGuide';
 import InputHub, { InputMode } from './InputHub';
 import { ConversationNode } from '@/types/conversation';
+import { analyzeContent } from '@/services/content-analyzer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -18,7 +19,8 @@ import {
   User,
   X,
   Maximize2,
-  Minimize2
+  Minimize2,
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -128,48 +130,84 @@ const ConversationBuilder = ({ nodes, onNodesUpdate }: ConversationBuilderProps)
     setMessages(prev => [...prev, userMessage]);
     setIsProcessing(true);
 
-    // Simulate AI processing (in production, this would call the AI endpoint)
-    setTimeout(() => {
-      // Mock AI response - in production this would come from the generate-structure endpoint
-      const aiResponse: Message = {
-        id: `msg-${Date.now() + 1}`,
-        role: 'assistant',
-        content: mode === 'paste' 
-          ? "I've analyzed your content and created a structure. Let me add some topics to your mind map..."
-          : "Great! Let me help you structure that. I'll add some key points to your plan.",
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, aiResponse]);
-
-      // Mock adding nodes based on input
-      if (nodes.length === 0) {
-        const newRootNode: ConversationNode = {
-          id: 'root',
-          label: content.split(' ').slice(0, 4).join(' '),
-          type: 'topic',
-          description: content.slice(0, 100),
-          children: [
-            { id: `child-${Date.now()}`, label: 'Key Point 1', type: 'topic' },
-            { id: `child-${Date.now() + 1}`, label: 'Key Point 2', type: 'topic' },
-          ],
+    // Process based on mode
+    if (mode === 'paste' && content.length > 100) {
+      // Use content analyzer for paste mode
+      setTimeout(() => {
+        const analyzedNodes = analyzeContent(content);
+        
+        const aiResponse: Message = {
+          id: `msg-${Date.now() + 1}`,
+          role: 'assistant',
+          content: `I've analyzed your content and identified ${analyzedNodes.length} key sections. I've added them to your mind map.`,
+          timestamp: new Date(),
         };
-        onNodesUpdate([newRootNode]);
-      } else {
-        // Add to existing root
-        const newChild: ConversationNode = {
-          id: `child-${Date.now()}`,
-          label: content.split(' ').slice(0, 4).join(' '),
-          type: 'topic',
-        };
-        const updatedNodes = nodes.map(node => ({
-          ...node,
-          children: [...(node.children || []), newChild],
-        }));
-        onNodesUpdate(updatedNodes);
-      }
+        setMessages(prev => [...prev, aiResponse]);
 
-      setIsProcessing(false);
-    }, 1500);
+        if (analyzedNodes.length > 0) {
+          if (nodes.length === 0) {
+            // Create root with analyzed nodes as children
+            const rootNode: ConversationNode = {
+              id: 'root',
+              label: 'My Plan',
+              type: 'topic',
+              children: analyzedNodes,
+            };
+            onNodesUpdate([rootNode]);
+          } else {
+            // Add analyzed nodes as children to existing root
+            const updatedNodes = nodes.map((node, idx) => 
+              idx === 0 
+                ? { ...node, children: [...(node.children || []), ...analyzedNodes] }
+                : node
+            );
+            onNodesUpdate(updatedNodes);
+          }
+        }
+
+        setIsProcessing(false);
+      }, 800);
+    } else {
+      // Regular chat mode
+      setTimeout(() => {
+        const aiResponse: Message = {
+          id: `msg-${Date.now() + 1}`,
+          role: 'assistant',
+          content: "Great! Let me help you structure that. I'll add some key points to your plan.",
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, aiResponse]);
+
+        // Mock adding nodes based on input
+        if (nodes.length === 0) {
+          const newRootNode: ConversationNode = {
+            id: 'root',
+            label: content.split(' ').slice(0, 4).join(' '),
+            type: 'topic',
+            description: content.slice(0, 100),
+            children: [
+              { id: `child-${Date.now()}`, label: 'Key Point 1', type: 'topic' },
+              { id: `child-${Date.now() + 1}`, label: 'Key Point 2', type: 'topic' },
+            ],
+          };
+          onNodesUpdate([newRootNode]);
+        } else {
+          // Add to existing root
+          const newChild: ConversationNode = {
+            id: `child-${Date.now()}`,
+            label: content.split(' ').slice(0, 4).join(' '),
+            type: 'topic',
+          };
+          const updatedNodes = nodes.map(node => ({
+            ...node,
+            children: [...(node.children || []), newChild],
+          }));
+          onNodesUpdate(updatedNodes);
+        }
+
+        setIsProcessing(false);
+      }, 1000);
+    }
   }, [nodes, onNodesUpdate]);
 
   const handleNodeSelect = (nodeId: string | null) => {

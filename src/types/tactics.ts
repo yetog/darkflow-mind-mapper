@@ -10,6 +10,21 @@ export type TacticCategory =
   | 'recipe'
   | 'beat';
 
+export interface FrameworkSection {
+  label: string;
+  description: string;
+}
+
+export interface TacticFramework {
+  name: string;
+  sections: FrameworkSection[];
+}
+
+export interface TacticExampleStory {
+  title: string;
+  story: string;
+}
+
 export interface StorytellerTactic {
   id: string;
   name: string;
@@ -22,6 +37,8 @@ export interface StorytellerTactic {
   keywords: string[];
   conversationTypes: string[]; // Which event types this works for
   icon?: string;
+  framework?: TacticFramework;
+  exampleStory?: TacticExampleStory;
 }
 
 export interface TacticCategoryInfo {

@@ -15,6 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  FolderPlus,
+  Library,
 } from 'lucide-react';
 import {
   VOCABULARY_PHRASES,
@@ -25,6 +27,8 @@ import {
   getVocabByCategory,
   getRandomPhrase,
 } from '@/data/vocabulary';
+import { useUserVocabulary } from '@/hooks/useUserVocabulary';
+import CreatePhraseModal from './CreatePhraseModal';
 import { cn } from '@/lib/utils';
 
 interface VocabBrowserProps {
@@ -34,21 +38,43 @@ interface VocabBrowserProps {
 const VocabBrowser = ({ onAddPhrase }: VocabBrowserProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<VocabCategory | 'all'>('all');
-  const [viewMode, setViewMode] = useState<'browse' | 'flashcard'>('browse');
+  const [viewMode, setViewMode] = useState<'browse' | 'flashcard' | 'my-collection'>('browse');
   const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const { userPhrases, addPhrase } = useUserVocabulary();
+
+  // Combine default and user phrases
+  const allPhrases = useMemo(() => {
+    const userVocabPhrases: VocabPhrase[] = userPhrases.map(p => ({
+      id: p.id,
+      phrase: p.phrase,
+      meaning: p.meaning,
+      example: p.example,
+      category: p.category,
+      situation: p.situation,
+      iconName: p.iconName,
+    }));
+    return [...userVocabPhrases, ...VOCABULARY_PHRASES];
+  }, [userPhrases]);
 
   const filteredPhrases = useMemo(() => {
-    let phrases = VOCABULARY_PHRASES;
+    let phrases = viewMode === 'my-collection' ? allPhrases.filter(p => p.id.startsWith('user-')) : allPhrases;
     
     if (searchQuery) {
-      phrases = searchVocab(searchQuery);
+      const lowerQuery = searchQuery.toLowerCase();
+      phrases = phrases.filter(phrase => 
+        phrase.phrase.toLowerCase().includes(lowerQuery) ||
+        phrase.meaning.toLowerCase().includes(lowerQuery) ||
+        phrase.example.toLowerCase().includes(lowerQuery)
+      );
     } else if (activeCategory !== 'all') {
-      phrases = getVocabByCategory(activeCategory);
+      phrases = phrases.filter(p => p.category === activeCategory);
     }
     
     return phrases;
-  }, [searchQuery, activeCategory]);
+  }, [searchQuery, activeCategory, allPhrases, viewMode]);
 
   const handleRandomPhrase = () => {
     const random = getRandomPhrase();
@@ -73,6 +99,19 @@ const VocabBrowser = ({ onAddPhrase }: VocabBrowserProps) => {
 
   const currentFlashcard = filteredPhrases[currentFlashcardIndex] || filteredPhrases[0];
 
+  const handleCreatePhrase = (phraseData: {
+    phrase: string;
+    meaning: string;
+    example: string;
+    category: VocabCategory;
+    situation: string;
+  }) => {
+    addPhrase({
+      ...phraseData,
+      iconName: 'MessageSquare',
+    });
+  };
+
   const getCategoryColor = (category: VocabCategory) => {
     switch (category) {
       case 'business': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
@@ -96,28 +135,53 @@ const VocabBrowser = ({ onAddPhrase }: VocabBrowserProps) => {
             <div>
               <h2 className="text-lg font-semibold text-foreground">Vocabulary & Phrases</h2>
               <p className="text-sm text-muted-foreground">
-                {VOCABULARY_PHRASES.length} phrases for impactful communication
+                {allPhrases.length} phrases • {userPhrases.length} custom
               </p>
             </div>
           </div>
           <div className="flex gap-2">
             <Button
-              variant={viewMode === 'browse' ? 'secondary' : 'ghost'}
+              variant="default"
               size="sm"
-              onClick={() => setViewMode('browse')}
+              onClick={() => setShowCreateModal(true)}
             >
-              <MessageSquare className="h-4 w-4 mr-1" />
-              Browse
-            </Button>
-            <Button
-              variant={viewMode === 'flashcard' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => { setViewMode('flashcard'); setIsFlipped(false); }}
-            >
-              <Sparkles className="h-4 w-4 mr-1" />
-              Flashcards
+              <Plus className="h-4 w-4 mr-1" />
+              Create
             </Button>
           </div>
+        </div>
+
+        {/* View Mode Tabs */}
+        <div className="flex gap-2 mb-4">
+          <Button
+            variant={viewMode === 'browse' ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('browse')}
+          >
+            <MessageSquare className="h-4 w-4 mr-1" />
+            Browse
+          </Button>
+          <Button
+            variant={viewMode === 'my-collection' ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('my-collection')}
+          >
+            <Library className="h-4 w-4 mr-1" />
+            My Collection
+            {userPhrases.length > 0 && (
+              <Badge variant="secondary" className="ml-1.5 h-5 px-1.5 text-xs">
+                {userPhrases.length}
+              </Badge>
+            )}
+          </Button>
+          <Button
+            variant={viewMode === 'flashcard' ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => { setViewMode('flashcard'); setIsFlipped(false); }}
+          >
+            <Sparkles className="h-4 w-4 mr-1" />
+            Flashcards
+          </Button>
         </div>
 
         {/* Search and Random */}
@@ -137,34 +201,36 @@ const VocabBrowser = ({ onAddPhrase }: VocabBrowserProps) => {
         </div>
 
         {/* Category Filters */}
-        <div className="flex gap-2 mt-4 flex-wrap">
-          <Button
-            variant={activeCategory === 'all' ? 'secondary' : 'ghost'}
-            size="sm"
-            onClick={() => setActiveCategory('all')}
-          >
-            All
-          </Button>
-          {VOCAB_CATEGORIES.map(category => (
+        {viewMode !== 'my-collection' && (
+          <div className="flex gap-2 mt-4 flex-wrap">
             <Button
-              key={category.id}
-              variant={activeCategory === category.id ? 'secondary' : 'ghost'}
+              variant={activeCategory === 'all' ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setActiveCategory(category.id)}
-              className={cn(activeCategory === category.id && getCategoryColor(category.id))}
+              onClick={() => setActiveCategory('all')}
             >
-              {category.label}
+              All
             </Button>
-          ))}
-        </div>
+            {VOCAB_CATEGORIES.map(category => (
+              <Button
+                key={category.id}
+                variant={activeCategory === category.id ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveCategory(category.id)}
+                className={cn(activeCategory === category.id && getCategoryColor(category.id))}
+              >
+                {category.label}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
         <AnimatePresence mode="wait">
-          {viewMode === 'browse' ? (
+          {viewMode === 'browse' || viewMode === 'my-collection' ? (
             <motion.div
-              key="browse"
+              key={viewMode}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
@@ -172,6 +238,17 @@ const VocabBrowser = ({ onAddPhrase }: VocabBrowserProps) => {
             >
               <ScrollArea className="h-full">
                 <div className="p-6 grid gap-4 md:grid-cols-2">
+                  {viewMode === 'my-collection' && userPhrases.length === 0 && (
+                    <div className="col-span-2 text-center py-12">
+                      <FolderPlus className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                      <p className="text-muted-foreground mb-2">No custom phrases yet</p>
+                      <Button onClick={() => setShowCreateModal(true)} variant="outline">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Your First Phrase
+                      </Button>
+                    </div>
+                  )}
+                  
                   {filteredPhrases.map((phrase, index) => (
                     <motion.div
                       key={phrase.id}
@@ -187,9 +264,16 @@ const VocabBrowser = ({ onAddPhrase }: VocabBrowserProps) => {
                             </div>
                             <h4 className="font-medium text-foreground">{phrase.phrase}</h4>
                           </div>
-                          <Badge variant="outline" className={cn('text-xs capitalize', getCategoryColor(phrase.category))}>
-                            {phrase.category}
-                          </Badge>
+                          <div className="flex gap-1.5">
+                            {phrase.id.startsWith('user-') && (
+                              <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30">
+                                Custom
+                              </Badge>
+                            )}
+                            <Badge variant="outline" className={cn('text-xs capitalize', getCategoryColor(phrase.category))}>
+                              {phrase.category}
+                            </Badge>
+                          </div>
                         </div>
                         <p className="text-sm text-muted-foreground mb-3">
                           {phrase.meaning}
@@ -214,7 +298,7 @@ const VocabBrowser = ({ onAddPhrase }: VocabBrowserProps) => {
                     </motion.div>
                   ))}
 
-                  {filteredPhrases.length === 0 && (
+                  {filteredPhrases.length === 0 && viewMode !== 'my-collection' && (
                     <div className="col-span-2 text-center py-12">
                       <p className="text-muted-foreground">No phrases found</p>
                     </div>
@@ -319,6 +403,13 @@ const VocabBrowser = ({ onAddPhrase }: VocabBrowserProps) => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Create Phrase Modal */}
+      <CreatePhraseModal
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        onCreatePhrase={handleCreatePhrase}
+      />
     </div>
   );
 };
