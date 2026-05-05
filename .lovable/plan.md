@@ -1,90 +1,40 @@
 
-# Two New Features: Enriched Tactics Learning + Personal Story Journal
+# Interactive Views and Conversation Type Guidance
 
-## Feature 1: Enriched Tactics Learning Experience
+## Problem Summary
 
-**Problem:** Clicking a tactic jumps straight to node-building. Users need to understand the tactic first -- its terminology, a real example story, and the framework -- before deciding to interact with it.
+1. **Timeline View**: Segments show a drag handle (GripVertical icon) but drag-to-reorder is not implemented. Clicking a segment only highlights it -- there is no way to edit label, description, duration, or other properties.
+2. **Carousel View**: "Add Slide" works, but there is no way to edit slide content (label, description, type, duration, speaker notes). The speaker notes textarea does not persist changes.
+3. **Conversation Type**: Selecting a type (presentation, meeting, etc.) has no visible effect on guidance or structure. Users do not understand why it matters.
 
-**Solution:** Populate all 54+ tactics with `framework` and `exampleStory` data, and restructure the detail view to lead with learning before interaction.
+## Plan
 
-### Changes
+### 1. Timeline View -- Drag Reorder and Edit Panel
 
-**`src/data/storyteller-tactics.ts`** -- Add `framework` and `exampleStory` fields to every tactic. Each tactic gets:
-- A named framework (e.g., "IBAS" for Man in a Hole) with 3-5 labeled sections and descriptions
-- A complete example story (2-4 sentences) demonstrating the tactic in a professional context
+- Integrate a lightweight drag-reorder library (e.g. `@dnd-kit/core` + `@dnd-kit/sortable`) for the segment list. When a user drags a segment via the GripVertical handle, the `onNodesUpdate` callback fires with the reordered children array.
+- When a user clicks a segment, open the existing `NodeDetailsPanel` (Sheet) to edit label, description, type, duration, emotional tone, and speaker notes. Add the necessary state (`editingNode`, `isPanelOpen`) and wire up `onSave`/`onDelete` to mutate `nodes[0].children` and call `onNodesUpdate`.
+- Wire the "Add Segment" button to append a new child node (similar to carousel's `insertSlide`).
 
-**`src/components/tactics/TacticDetailView.tsx`** -- Reorder the detail view to emphasize learning:
-1. **The Framework** -- Named structure with visual numbered cards (already built, just needs data)
-2. **Example Story** -- Full example with annotations highlighting which framework section each part maps to
-3. **Key Terminology** -- New section: define the key terms/concepts unique to this tactic
-4. **How to Apply** -- Step-by-step guide (existing)
-5. **When to Use** -- Situations (existing)
-6. **Action buttons** -- "Apply to My Plan" and "Practice This" moved to bottom, clearly separated from learning content
+### 2. Carousel View -- Slide Editing
 
-**`src/types/tactics.ts`** -- Add `terminology` field:
-```
-terminology?: { term: string; definition: string }[]
-```
+- When viewing a slide, add an "Edit" button (or make the slide card clickable) that opens `NodeDetailsPanel` for the current slide.
+- Fix the speaker notes textarea so changes persist: add an `onChange` handler that updates `nodes[0].children[currentSlide].speakerNotes` via `onNodesUpdate`.
+- Ensure "Add Slide" inserts a new node and navigates to it (already partially working, just needs the edit panel wired up).
 
----
+### 3. Conversation Type Guidance
 
-## Feature 2: Personal Story Journal
+- Create a small `ConversationTypeInsight` component that renders a contextual tip card below or near the conversation type selector in the Header.
+- Each conversation type gets a short description and 2-3 structural suggestions (e.g., "Presentations benefit from a strong opening hook, 3 key points, and a clear call-to-action").
+- Display this as a collapsible info banner or tooltip in the plan view header area, not as a blocking modal.
 
-**Problem:** Users have no place to capture, date, and curate their own personal stories for later use in conversations and presentations.
+### Technical Details
 
-**Solution:** A new "My Stories" section accessible from the sidebar where users can log dated personal stories with tags and key takeaways.
+**New dependency**: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
 
-### New Files
+**Files to create**:
+- `src/components/common/ConversationTypeInsight.tsx` -- Guidance component
 
-**`src/types/stories.ts`** -- Types for the story journal:
-- `PersonalStory`: id, title, story text, date, tags, key moments/takeaways, linked tactic (optional), created/updated timestamps
-
-**`src/hooks/useStoryJournal.ts`** -- localStorage-backed CRUD for stories (same pattern as `useUserVocabulary.ts`)
-
-**`src/components/stories/StoryJournal.tsx`** -- Main view with:
-- List of stories sorted by date (newest first)
-- Search and filter by tags
-- Empty state encouraging users to log their first story
-
-**`src/components/stories/StoryEditor.tsx`** -- Create/edit modal with:
-- Title, date picker, story text (textarea)
-- Tags (freeform chips)
-- "Key Moments" -- bullet-point list of highlights/takeaways
-- Optional: link to a storytelling tactic this story could use
-- Save to localStorage
-
-**`src/components/stories/StoryCard.tsx`** -- Card component showing story preview with date, title, tags, and excerpt
-
-### Sidebar Integration
-
-**`src/components/layout/Sidebar.tsx`**:
-- Add "My Stories" as a new `AppSection` value
-- Add navigation item with `BookText` icon in the Sections area
-
-**`src/components/ConvoFlowApp.tsx`**:
-- Add routing for the new "stories" section to render `StoryJournal`
-
----
-
-## Files Summary
-
-| Action | File | Purpose |
-|--------|------|---------|
-| Update | `src/data/storyteller-tactics.ts` | Add framework + exampleStory data to all tactics |
-| Update | `src/types/tactics.ts` | Add terminology field |
-| Update | `src/components/tactics/TacticDetailView.tsx` | Add terminology section, annotated examples |
-| Create | `src/types/stories.ts` | Story journal types |
-| Create | `src/hooks/useStoryJournal.ts` | localStorage CRUD for stories |
-| Create | `src/components/stories/StoryJournal.tsx` | Main journal view |
-| Create | `src/components/stories/StoryEditor.tsx` | Create/edit story modal |
-| Create | `src/components/stories/StoryCard.tsx` | Story preview card |
-| Update | `src/components/layout/Sidebar.tsx` | Add "My Stories" nav item |
-| Update | `src/components/ConvoFlowApp.tsx` | Route to StoryJournal |
-
-## Implementation Order
-
-1. Enrich tactics data (framework + exampleStory + terminology for all tactics)
-2. Update TacticDetailView with terminology section and annotated examples
-3. Build Story Journal types and hook
-4. Build Story Journal UI components
-5. Wire into sidebar and app routing
+**Files to modify**:
+- `src/components/views/TimelineView.tsx` -- Add drag-reorder with dnd-kit, add NodeDetailsPanel integration, wire Add Segment
+- `src/components/views/CarouselView.tsx` -- Add NodeDetailsPanel for slide editing, fix speaker notes persistence
+- `src/components/layout/Header.tsx` -- Render ConversationTypeInsight when conversation type is shown
