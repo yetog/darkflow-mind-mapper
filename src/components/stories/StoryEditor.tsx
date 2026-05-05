@@ -72,6 +72,7 @@ const StoryEditor = ({ open, onOpenChange, story, onSave }: StoryEditorProps) =>
       title: title.trim(),
       story: storyText.trim(),
       date,
+      category,
       tags,
       keyMoments,
       linkedTacticId: linkedTacticId || undefined,
