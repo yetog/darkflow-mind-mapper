@@ -11,7 +11,9 @@ export const useStoryJournal = () => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setStories(JSON.parse(stored));
+        const parsed = JSON.parse(stored) as PersonalStory[];
+        // Migrate old stories without category
+        setStories(parsed.map(s => ({ ...s, category: s.category || 'personal' })));
       }
     } catch (error) {
       console.error('Failed to load story journal:', error);

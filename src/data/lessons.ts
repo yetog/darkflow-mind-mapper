@@ -245,6 +245,135 @@ export const LESSONS: Lesson[] = [
   },
 ];
 
+// Clarity Lessons
+const CLARITY_LESSONS: Lesson[] = [
+  {
+    id: 'clarity-101',
+    title: 'Articulate Your Message',
+    description: 'Distill complex ideas into clear, memorable statements',
+    category: 'clarity',
+    difficulty: 'beginner',
+    duration: 6,
+    iconName: 'Eye',
+    color: 'blue',
+    targetMetrics: ['conciseness', 'confidence'],
+    exercises: [
+      {
+        id: 'one-sentence-summary',
+        type: 'prompt',
+        title: 'One-Sentence Summary',
+        instruction: 'Take a topic you know well and explain it in a single, jargon-free sentence that anyone could understand. Focus on the core idea — remove everything non-essential.',
+        prompt: 'Summarize your expertise in one sentence',
+        targetDuration: 15,
+        evaluationCriteria: ['No jargon', 'Single core idea', 'Under 20 words'],
+        tips: ['Start with "In short..." to force brevity', 'If a 10-year-old wouldn\'t understand it, simplify further'],
+      },
+      {
+        id: 'clarity-expansion',
+        type: 'timed-speech',
+        title: 'Expand with Precision',
+        instruction: 'Now take that one sentence and expand it into a 60-second explanation. Add one example and one reason — nothing more. Every sentence should earn its place.',
+        targetDuration: 60,
+        evaluationCriteria: ['Logical flow', 'One concrete example', 'No tangents', 'Each sentence adds value'],
+      },
+    ],
+  },
+  {
+    id: 'clarity-102',
+    title: 'Simplify Complex Ideas',
+    description: 'Use analogies and frameworks to make the complicated accessible',
+    category: 'clarity',
+    difficulty: 'intermediate',
+    duration: 8,
+    iconName: 'Layers',
+    color: 'blue',
+    targetMetrics: ['conciseness'],
+    exercises: [
+      {
+        id: 'analogy-builder',
+        type: 'prompt',
+        title: 'The Analogy Builder',
+        instruction: 'Choose a complex concept from your field. Explain it using an everyday analogy — compare it to cooking, sports, building a house, or another familiar domain.',
+        prompt: 'Explain a complex concept using an analogy',
+        targetDuration: 45,
+        evaluationCriteria: ['Relatable analogy', 'Accurate mapping', 'Audience-appropriate'],
+        tips: ['Good analogies share structural similarity, not surface similarity', 'Test: does the analogy still hold if someone asks a follow-up?'],
+      },
+      {
+        id: 'three-layer-explain',
+        type: 'timed-speech',
+        title: 'Three-Layer Explanation',
+        instruction: 'Explain the same concept three times: first in one sentence for a child, then in 30 seconds for a colleague, then in 60 seconds for an expert. Each layer adds depth without losing clarity.',
+        targetDuration: 90,
+        evaluationCriteria: ['Progressive complexity', 'Each layer self-contained', 'No contradictions between layers'],
+      },
+    ],
+  },
+  {
+    id: 'clarity-103',
+    title: 'The Clarity Checklist',
+    description: 'Audit your speaking for common clarity killers',
+    category: 'clarity',
+    difficulty: 'beginner',
+    duration: 5,
+    iconName: 'CheckSquare',
+    color: 'blue',
+    targetMetrics: ['conciseness', 'fillerWords'],
+    exercises: [
+      {
+        id: 'clarity-killers',
+        type: 'reading',
+        title: 'Spot the Clarity Killers',
+        instruction: 'Read this passage aloud and identify clarity problems: "So basically, what I\'m trying to say is that, you know, in terms of the overall strategic paradigm shift, we need to synergize our core competencies to leverage the value proposition going forward." Now restate it clearly.',
+        evaluationCriteria: ['Identify vague phrases', 'Remove corporate jargon', 'Produce a clear restatement'],
+      },
+      {
+        id: 'clear-restate',
+        type: 'prompt',
+        title: 'Crystal Clear Restatement',
+        instruction: 'Take a message you recently delivered (at work, in a meeting, or to a friend) that felt unclear. Say it again with maximum clarity: short sentences, concrete words, logical order.',
+        prompt: 'Restate a recent unclear message with total clarity',
+        targetDuration: 30,
+        evaluationCriteria: ['Short sentences', 'Concrete nouns and verbs', 'Logical sequence'],
+        tips: ['Replace abstract words with specific ones', 'Cut any sentence that doesn\'t move the message forward'],
+      },
+    ],
+  },
+  {
+    id: 'clarity-104',
+    title: 'Structured Thinking Out Loud',
+    description: 'Organize your thoughts in real-time using frameworks',
+    category: 'clarity',
+    difficulty: 'advanced',
+    duration: 10,
+    iconName: 'GitBranch',
+    color: 'blue',
+    targetMetrics: ['conciseness', 'confidence', 'pausing'],
+    exercises: [
+      {
+        id: 'prep-framework',
+        type: 'prompt',
+        title: 'PREP Framework',
+        instruction: 'Answer this question using the PREP framework — Point, Reason, Example, Point: "Should companies allow fully remote work?" State your point, give one reason, provide one example, then restate your point.',
+        prompt: 'Use PREP to answer: Should companies allow fully remote work?',
+        targetDuration: 60,
+        evaluationCriteria: ['Clear opening point', 'Supporting reason', 'Concrete example', 'Clean restatement'],
+      },
+      {
+        id: 'impromptu-structure',
+        type: 'impromptu',
+        title: 'Structured Impromptu',
+        instruction: 'You will get a random topic. Use 5 seconds to pick a framework (PREP, Problem-Solution, Past-Present-Future), then deliver a 45-second structured response.',
+        targetDuration: 45,
+        evaluationCriteria: ['Chosen framework is evident', 'No rambling', 'Clear transitions', 'Decisive conclusion'],
+      },
+    ],
+  },
+];
+
+// Merge clarity lessons into main array
+LESSONS.push(...CLARITY_LESSONS);
+
 export const LESSON_COURSES: LessonCourse[] = [
   {
     id: 'confidence-course',
@@ -272,6 +401,15 @@ export const LESSON_COURSES: LessonCourse[] = [
     lessons: LESSONS.filter(l => l.category === 'pace'),
     estimatedDuration: 25,
     iconName: 'Clock',
+  },
+  {
+    id: 'clarity-course',
+    title: 'Speak with Crystal Clarity',
+    description: 'Cut through noise and communicate with precision',
+    category: 'clarity',
+    lessons: LESSONS.filter(l => l.category === 'clarity'),
+    estimatedDuration: 29,
+    iconName: 'Eye',
   },
 ];
 

@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Plus } from 'lucide-react';
 import { PersonalStory } from '@/types/stories';
+import { STORY_CATEGORIES } from '@/types/stories';
 import { STORYTELLER_TACTICS } from '@/data/storyteller-tactics';
 import VoiceMemoRecorder from './VoiceMemoRecorder';
 
@@ -24,6 +25,7 @@ const StoryEditor = ({ open, onOpenChange, story, onSave }: StoryEditorProps) =>
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [category, setCategory] = useState('personal');
   const [keyMoments, setKeyMoments] = useState<string[]>([]);
   const [momentInput, setMomentInput] = useState('');
   const [linkedTacticId, setLinkedTacticId] = useState<string>('');
@@ -33,12 +35,14 @@ const StoryEditor = ({ open, onOpenChange, story, onSave }: StoryEditorProps) =>
       setTitle(story.title);
       setStoryText(story.story);
       setDate(story.date);
+      setCategory(story.category || 'personal');
       setTags(story.tags);
       setKeyMoments(story.keyMoments);
       setLinkedTacticId(story.linkedTacticId || '');
     } else {
       setTitle('');
-      setStoryText('');
+      setStoryText('');      
+      setCategory('personal');
       setDate(new Date().toISOString().split('T')[0]);
       setTags([]);
       setKeyMoments([]);
@@ -72,6 +76,7 @@ const StoryEditor = ({ open, onOpenChange, story, onSave }: StoryEditorProps) =>
       title: title.trim(),
       story: storyText.trim(),
       date,
+      category,
       tags,
       keyMoments,
       linkedTacticId: linkedTacticId || undefined,
@@ -93,6 +98,19 @@ const StoryEditor = ({ open, onOpenChange, story, onSave }: StoryEditorProps) =>
           <div>
             <Label htmlFor="date">Date</Label>
             <Input id="date" type="date" value={date} onChange={e => setDate(e.target.value)} />
+          </div>
+          <div>
+            <Label>Category</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {STORY_CATEGORIES.map(c => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">

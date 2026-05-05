@@ -4,11 +4,16 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, Plus, BookText, Filter } from 'lucide-react';
+import { Search, Plus, BookText, Filter, LayoutGrid, Clock, Network } from 'lucide-react';
 import { useStoryJournal } from '@/hooks/useStoryJournal';
 import { PersonalStory } from '@/types/stories';
+import { STORY_CATEGORIES } from '@/types/stories';
 import StoryCard from './StoryCard';
 import StoryEditor from './StoryEditor';
+import StoryTimeline from './StoryTimeline';
+import StoryMap from './StoryMap';
+
+type StoryView = 'cards' | 'timeline' | 'map';
 
 const StoryJournal = () => {
   const { stories, addStory, updateStory, deleteStory, getAllTags } = useStoryJournal();
@@ -16,6 +21,8 @@ const StoryJournal = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingStory, setEditingStory] = useState<PersonalStory | null>(null);
+  const [activeView, setActiveView] = useState<StoryView>('cards');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const allTags = useMemo(() => getAllTags(), [getAllTags]);
 
@@ -32,8 +39,11 @@ const StoryJournal = () => {
     if (selectedTag) {
       result = result.filter(s => s.tags.includes(selectedTag));
     }
+    if (selectedCategory) {
+      result = result.filter(s => s.category === selectedCategory);
+    }
     return result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [stories, searchQuery, selectedTag]);
+  }, [stories, searchQuery, selectedTag, selectedCategory]);
 
   const handleSave = (data: Omit<PersonalStory, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingStory) {
@@ -74,7 +84,7 @@ const StoryJournal = () => {
           </Button>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -84,30 +94,72 @@ const StoryJournal = () => {
               className="pl-9"
             />
           </div>
+          <div className="flex rounded-lg border border-border overflow-hidden">
+            <Button
+              variant={activeView === 'cards' ? 'default' : 'ghost'}
+              size="sm"
+              className="rounded-none px-3"
+              onClick={() => setActiveView('cards')}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={activeView === 'timeline' ? 'default' : 'ghost'}
+              size="sm"
+              className="rounded-none px-3"
+              onClick={() => setActiveView('timeline')}
+            >
+              <Clock className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={activeView === 'map' ? 'default' : 'ghost'}
+              size="sm"
+              className="rounded-none px-3"
+              onClick={() => setActiveView('map')}
+            >
+              <Network className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
-        {allTags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-3">
+        <div className="flex flex-wrap gap-1.5 mt-3">
+          {/* Category filters */}
+          <Badge
+            variant={selectedCategory === null ? 'default' : 'outline'}
+            className="cursor-pointer text-xs"
+            onClick={() => setSelectedCategory(null)}
+          >
+            <Filter className="h-3 w-3 mr-1" />
+            All
+          </Badge>
+          {STORY_CATEGORIES.map(cat => (
             <Badge
-              variant={selectedTag === null ? 'default' : 'outline'}
+              key={cat.value}
+              variant={selectedCategory === cat.value ? 'default' : 'outline'}
               className="cursor-pointer text-xs"
-              onClick={() => setSelectedTag(null)}
+              onClick={() => setSelectedCategory(selectedCategory === cat.value ? null : cat.value)}
             >
-              <Filter className="h-3 w-3 mr-1" />
-              All
+              {cat.label}
             </Badge>
-            {allTags.map(tag => (
-              <Badge
-                key={tag}
-                variant={selectedTag === tag ? 'default' : 'outline'}
-                className="cursor-pointer text-xs"
-                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-              >
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
+          ))}
+
+          {/* Tag filters */}
+          {allTags.length > 0 && (
+            <>
+              <div className="w-px h-5 bg-border mx-1 self-center" />
+              {allTags.map(tag => (
+                <Badge
+                  key={tag}
+                  variant={selectedTag === tag ? 'default' : 'outline'}
+                  className="cursor-pointer text-xs"
+                  onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                >
+                  {tag}
+                </Badge>
+              ))}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Content */}
@@ -135,7 +187,7 @@ const StoryJournal = () => {
                 </Button>
               )}
             </motion.div>
-          ) : (
+          ) : activeView === 'cards' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered.map((story, index) => (
                 <motion.div
@@ -152,6 +204,10 @@ const StoryJournal = () => {
                 </motion.div>
               ))}
             </div>
+          ) : activeView === 'timeline' ? (
+            <StoryTimeline stories={filtered} onEdit={handleEdit} onDelete={deleteStory} />
+          ) : (
+            <StoryMap stories={filtered} onEdit={handleEdit} />
           )}
         </div>
       </ScrollArea>
