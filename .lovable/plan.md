@@ -1,40 +1,66 @@
 
-# Interactive Views and Conversation Type Guidance
+# Fix Non-AI Functional Gaps
 
-## Problem Summary
+Skipping: AI Chat Builder, AI Coach, database persistence (those are AI/backend enhancements for later).
 
-1. **Timeline View**: Segments show a drag handle (GripVertical icon) but drag-to-reorder is not implemented. Clicking a segment only highlights it -- there is no way to edit label, description, duration, or other properties.
-2. **Carousel View**: "Add Slide" works, but there is no way to edit slide content (label, description, type, duration, speaker notes). The speaker notes textarea does not persist changes.
-3. **Conversation Type**: Selecting a type (presentation, meeting, etc.) has no visible effect on guidance or structure. Users do not understand why it matters.
+## 1. Lesson Viewer — Clicking a lesson opens nothing
 
-## Plan
+**Problem**: `onStartLesson` is passed to `LessonsBrowser` but never connected in `ConvoFlowApp`. No lesson content view exists.
 
-### 1. Timeline View -- Drag Reorder and Edit Panel
+**Fix**: Create a `LessonPlayer` component that displays exercises step-by-step (instruction, tips, evaluation criteria). Wire it in `ConvoFlowApp` with a new `active-lesson` section state that receives the lesson ID.
 
-- Integrate a lightweight drag-reorder library (e.g. `@dnd-kit/core` + `@dnd-kit/sortable`) for the segment list. When a user drags a segment via the GripVertical handle, the `onNodesUpdate` callback fires with the reordered children array.
-- When a user clicks a segment, open the existing `NodeDetailsPanel` (Sheet) to edit label, description, type, duration, emotional tone, and speaker notes. Add the necessary state (`editingNode`, `isPanelOpen`) and wire up `onSave`/`onDelete` to mutate `nodes[0].children` and call `onNodesUpdate`.
-- Wire the "Add Segment" button to append a new child node (similar to carousel's `insertSlide`).
+- Exercise types: `breathing` shows the existing `BreathingExercise` component, `prompt`/`reading`/`timed-speech` show the instruction + a timer + a "Record" button linking to Practice Mode, `articulation` shows the text to read aloud.
+- Navigation: Next/Previous exercise buttons, progress bar across exercises.
 
-### 2. Carousel View -- Slide Editing
+## 2. Dashboard Stats — Hardcoded mock data
 
-- When viewing a slide, add an "Edit" button (or make the slide card clickable) that opens `NodeDetailsPanel` for the current slide.
-- Fix the speaker notes textarea so changes persist: add an `onChange` handler that updates `nodes[0].children[currentSlide].speakerNotes` via `onNodesUpdate`.
-- Ensure "Add Slide" inserts a new node and navigates to it (already partially working, just needs the edit panel wired up).
+**Problem**: `mockProgress` has static numbers (145 min, 23 speeches, etc.).
 
-### 3. Conversation Type Guidance
+**Fix**: Create a `useUserProgress` hook that reads from localStorage:
+- Track practice sessions (duration, date, scores) whenever PracticeMode completes an analysis
+- Derive total practice time, speeches analyzed, streak, level/XP from stored sessions
+- Dashboard reads from this hook instead of `mockProgress`
 
-- Create a small `ConversationTypeInsight` component that renders a contextual tip card below or near the conversation type selector in the Header.
-- Each conversation type gets a short description and 2-3 structural suggestions (e.g., "Presentations benefit from a strong opening hook, 3 key points, and a clear call-to-action").
-- Display this as a collapsible info banner or tooltip in the plan view header area, not as a blocking modal.
+## 3. Export / Save / Share — Buttons exist, no implementation
 
-### Technical Details
+**Problem**: Header has Save/Share/Export buttons but they're not wired in `ConvoFlowApp` (no callbacks passed).
 
-**New dependency**: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
+**Fix**:
+- **Save**: Persist current plan to localStorage (auto-save on changes + manual save with toast)
+- **Export**: Download plan as JSON file (`plan.json`) and optionally a markdown outline
+- **Share**: Copy a shareable text summary to clipboard (no backend needed)
+- Wire these callbacks from `ConvoFlowApp` through to `Header`
 
-**Files to create**:
-- `src/components/common/ConversationTypeInsight.tsx` -- Guidance component
+## 4. Tactic "Apply to Plan" — Adds to root instead of merging
 
-**Files to modify**:
-- `src/components/views/TimelineView.tsx` -- Add drag-reorder with dnd-kit, add NodeDetailsPanel integration, wire Add Segment
-- `src/components/views/CarouselView.tsx` -- Add NodeDetailsPanel for slide editing, fix speaker notes persistence
-- `src/components/layout/Header.tsx` -- Render ConversationTypeInsight when conversation type is shown
+**Problem**: `handleApplyTacticToMindMap` in `ConvoFlowApp` does `[...prev.nodes, ...nodes]` which adds a second root node.
+
+**Fix**: Merge tactic steps as children of the existing root node instead:
+```
+children: [...(existingRoot.children || []), ...tacticRootNode.children]
+```
+
+## 5. Conversation Type Insight — Z-index issue
+
+**Problem**: The expanded tips panel uses `z-30` but the `main` content area can render on top.
+
+**Fix**: Increase to `z-50` and ensure the header has `position: relative` with higher stacking context.
+
+## 6. Practice Mode — Analysis is real but results aren't persisted
+
+**Problem**: The speech analyzer actually works (not mocked!), analyzing transcript for pace, fillers, confidence, etc. But results disappear after leaving the page.
+
+**Fix**: Store completed practice sessions in localStorage via the `useUserProgress` hook (same as item 2). This also feeds Dashboard stats.
+
+## Files to Create
+- `src/components/lessons/LessonPlayer.tsx` — Step-by-step exercise viewer
+- `src/hooks/useUserProgress.ts` — localStorage-based progress tracking
+
+## Files to Modify
+- `src/components/ConvoFlowApp.tsx` — Wire lesson player, save/export/share, fix tactic merge
+- `src/components/layout/Sidebar.tsx` — Add `active-lesson` section type
+- `src/components/progress/ProgressDashboard.tsx` — Use `useUserProgress` hook
+- `src/components/practice/PracticeMode.tsx` — Save completed sessions
+- `src/components/layout/Header.tsx` — Z-index fix
+- `src/components/common/ConversationTypeInsight.tsx` — Z-index fix
+- `src/components/lessons/LessonsBrowser.tsx` — Wire `onStartLesson` properly
