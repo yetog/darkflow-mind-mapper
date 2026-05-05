@@ -24,6 +24,7 @@ const StoryEditor = ({ open, onOpenChange, story, onSave }: StoryEditorProps) =>
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [category, setCategory] = useState('personal');
   const [keyMoments, setKeyMoments] = useState<string[]>([]);
   const [momentInput, setMomentInput] = useState('');
   const [linkedTacticId, setLinkedTacticId] = useState<string>('');
@@ -33,12 +34,14 @@ const StoryEditor = ({ open, onOpenChange, story, onSave }: StoryEditorProps) =>
       setTitle(story.title);
       setStoryText(story.story);
       setDate(story.date);
+      setCategory(story.category || 'personal');
       setTags(story.tags);
       setKeyMoments(story.keyMoments);
       setLinkedTacticId(story.linkedTacticId || '');
     } else {
       setTitle('');
-      setStoryText('');
+      setStoryText('');      
+      setCategory('personal');
       setDate(new Date().toISOString().split('T')[0]);
       setTags([]);
       setKeyMoments([]);
