@@ -1,15 +1,16 @@
 import React, { useMemo, useCallback } from 'react';
-import ReactFlow, {
-  Node,
-  Edge,
+import {
+  ReactFlow,
+  type Node,
+  type Edge,
   useNodesState,
   useEdgesState,
   Background,
   Controls,
   MiniMap,
   BackgroundVariant,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import { PersonalStory, STORY_CATEGORIES } from '@/types/stories';
 
 interface StoryMapProps {
