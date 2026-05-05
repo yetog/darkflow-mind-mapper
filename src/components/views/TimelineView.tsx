@@ -1,12 +1,29 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { ConversationNode } from '@/types/conversation';
 import { cn } from '@/lib/utils';
-import { AnimatedCard, FadeInSection, AnimatedProgress } from '@/components/ui/animated-card';
+import { AnimatedCard, FadeInSection } from '@/components/ui/animated-card';
+import NodeDetailsPanel from '@/components/builder/NodeDetailsPanel';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   Plus,
   Clock,
@@ -15,6 +32,8 @@ import {
   ArrowRight,
   Target,
   GripVertical,
+  Edit3,
+  Trash2,
 } from 'lucide-react';
 
 interface TimelineViewProps {
@@ -23,13 +42,178 @@ interface TimelineViewProps {
   onNodesUpdate: (nodes: ConversationNode[]) => void;
 }
 
+// Sortable segment component
+const SortableSegment = ({
+  segment,
+  index,
+  segmentsLength,
+  selectedSegmentId,
+  onSelect,
+  onEdit,
+}: {
+  segment: ConversationNode & { startTime: number; endTime: number };
+  index: number;
+  segmentsLength: number;
+  selectedSegmentId: string | null;
+  onSelect: (id: string) => void;
+  onEdit: (id: string) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: segment.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+    opacity: isDragging ? 0.8 : 1,
+  };
+
+  const Icon = getSegmentIcon(segment.type);
+  const isSelected = selectedSegmentId === segment.id;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'group flex items-start gap-4 p-4 rounded-lg border transition-all cursor-pointer',
+        isDragging && 'shadow-xl ring-2 ring-primary',
+        isSelected
+          ? 'border-primary bg-primary/5 shadow-glow'
+          : 'border-border bg-card/50 hover:border-primary/50 hover:bg-card'
+      )}
+      onClick={() => onSelect(segment.id)}
+    >
+      {/* Drag Handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing touch-none"
+      >
+        <GripVertical className="h-5 w-5 text-muted-foreground" />
+      </div>
+
+      {/* Time Indicator */}
+      <div className="flex-shrink-0 w-16 text-center">
+        <div className="text-sm font-medium text-foreground">
+          {segment.startTime}:00
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {segment.duration || 5} min
+        </div>
+      </div>
+
+      {/* Icon */}
+      <div className={cn(
+        'flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center',
+        segment.type === 'question' && 'bg-purple-500/20 text-purple-400',
+        segment.type === 'transition' && 'bg-teal-500/20 text-teal-400',
+        segment.type === 'milestone' && 'bg-green-500/20 text-green-400',
+        segment.type === 'topic' && 'bg-blue-500/20 text-blue-400',
+        segment.type === 'activity' && 'bg-amber-500/20 text-amber-400'
+      )}>
+        <Icon className="h-5 w-5" />
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <h4 className="font-medium text-foreground truncate">
+          {segment.label}
+        </h4>
+        {segment.description && (
+          <p className="text-sm text-muted-foreground truncate mt-0.5">
+            {segment.description}
+          </p>
+        )}
+        <div className="flex items-center gap-2 mt-2">
+          <Badge
+            variant="outline"
+            className={cn('text-xs capitalize', `badge-${segment.type}`)}
+          >
+            {segment.type}
+          </Badge>
+          {segment.emotionalTone && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <div className={cn('w-2 h-2 rounded-full', getEmotionalColor(segment.emotionalTone))} />
+              <span className="capitalize">{segment.emotionalTone}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Edit Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+        onClick={(e) => {
+          e.stopPropagation();
+          onEdit(segment.id);
+        }}
+      >
+        <Edit3 className="h-4 w-4" />
+      </Button>
+
+      {/* Emotional Arc Indicator */}
+      <div className="flex-shrink-0 w-20 h-12">
+        <svg viewBox="0 0 80 48" className="w-full h-full">
+          <path
+            d={getArcPath(segment.emotionalTone)}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className={cn(
+              segment.emotionalTone === 'positive' && 'text-green-500',
+              segment.emotionalTone === 'negative' && 'text-red-500',
+              segment.emotionalTone === 'building' && 'text-amber-500',
+              segment.emotionalTone === 'resolving' && 'text-blue-500',
+              !segment.emotionalTone && 'text-muted-foreground'
+            )}
+          />
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+const getSegmentIcon = (type: ConversationNode['type']) => {
+  switch (type) {
+    case 'question': return HelpCircle;
+    case 'transition': return ArrowRight;
+    case 'milestone': return Target;
+    default: return MessageCircle;
+  }
+};
+
+const getEmotionalColor = (tone?: string) => {
+  switch (tone) {
+    case 'positive': return 'bg-green-500';
+    case 'negative': return 'bg-red-500';
+    case 'building': return 'bg-amber-500';
+    case 'resolving': return 'bg-blue-500';
+    default: return 'bg-muted-foreground';
+  }
+};
+
 const TimelineView = ({ nodes, totalDuration, onNodesUpdate }: TimelineViewProps) => {
   const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   // Flatten nodes into timeline segments
   const segments = nodes[0]?.children || [];
-  
-  // Calculate cumulative time
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
   let cumulativeTime = 0;
   const segmentsWithTime = segments.map(segment => {
     const startTime = cumulativeTime;
@@ -43,27 +227,54 @@ const TimelineView = ({ nodes, totalDuration, onNodesUpdate }: TimelineViewProps
 
   const actualDuration = cumulativeTime;
 
-  const getSegmentIcon = (type: ConversationNode['type']) => {
-    switch (type) {
-      case 'question': return HelpCircle;
-      case 'transition': return ArrowRight;
-      case 'milestone': return Target;
-      default: return MessageCircle;
-    }
+  const editingNode = editingNodeId
+    ? segments.find(s => s.id === editingNodeId) || null
+    : null;
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !nodes[0]) return;
+
+    const oldIndex = segments.findIndex(s => s.id === active.id);
+    const newIndex = segments.findIndex(s => s.id === over.id);
+    const reordered = arrayMove([...segments], oldIndex, newIndex);
+    onNodesUpdate([{ ...nodes[0], children: reordered }]);
   };
 
-  const getEmotionalColor = (tone?: string) => {
-    switch (tone) {
-      case 'positive': return 'bg-green-500';
-      case 'negative': return 'bg-red-500';
-      case 'building': return 'bg-amber-500';
-      case 'resolving': return 'bg-blue-500';
-      default: return 'bg-muted-foreground';
-    }
+  const handleEditSegment = (segmentId: string) => {
+    setEditingNodeId(segmentId);
+    setIsPanelOpen(true);
+  };
+
+  const handleSaveNode = (nodeId: string, updates: Partial<ConversationNode>) => {
+    if (!nodes[0]) return;
+    const updatedChildren = segments.map(s =>
+      s.id === nodeId ? { ...s, ...updates } : s
+    );
+    onNodesUpdate([{ ...nodes[0], children: updatedChildren }]);
+  };
+
+  const handleDeleteNode = (nodeId: string) => {
+    if (!nodes[0]) return;
+    const updatedChildren = segments.filter(s => s.id !== nodeId);
+    onNodesUpdate([{ ...nodes[0], children: updatedChildren }]);
+    setIsPanelOpen(false);
+    setEditingNodeId(null);
+  };
+
+  const handleAddSegment = () => {
+    if (!nodes[0]) return;
+    const newSegment: ConversationNode = {
+      id: `segment-${Date.now()}`,
+      label: 'New Segment',
+      type: 'topic',
+      duration: 5,
+    };
+    onNodesUpdate([{ ...nodes[0], children: [...segments, newSegment] }]);
   };
 
   return (
-    <div className="h-full flex flex-col p-6">
+    <div className="h-full flex flex-col p-6 relative">
       {/* Header Stats */}
       <FadeInSection direction="up" delay={0}>
         <div className="flex items-center justify-between mb-6">
@@ -76,7 +287,7 @@ const TimelineView = ({ nodes, totalDuration, onNodesUpdate }: TimelineViewProps
               {segments.length} segments
             </Badge>
           </div>
-          <Button size="sm">
+          <Button size="sm" onClick={handleAddSegment}>
             <Plus className="h-4 w-4 mr-2" />
             Add Segment
           </Button>
@@ -143,114 +354,50 @@ const TimelineView = ({ nodes, totalDuration, onNodesUpdate }: TimelineViewProps
                 </div>
 
                 {/* Segment Cards */}
-                <div className="space-y-3">
-                  {segmentsWithTime.map((segment, index) => {
-                    const Icon = getSegmentIcon(segment.type);
-                    const isSelected = selectedSegmentId === segment.id;
-                    
-                    return (
-                      <motion.div
-                        key={segment.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 + index * 0.1 }}
-                        whileHover={{ scale: 1.01 }}
-                        className={cn(
-                          'group flex items-start gap-4 p-4 rounded-lg border transition-all cursor-pointer',
-                          isSelected
-                            ? 'border-primary bg-primary/5 shadow-glow'
-                            : 'border-border bg-card/50 hover:border-primary/50 hover:bg-card'
-                        )}
-                        onClick={() => setSelectedSegmentId(segment.id)}
-                      >
-                        {/* Drag Handle */}
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
-                          <GripVertical className="h-5 w-5 text-muted-foreground" />
-                        </div>
-
-                        {/* Time Indicator */}
-                        <div className="flex-shrink-0 w-16 text-center">
-                          <div className="text-sm font-medium text-foreground">
-                            {segment.startTime}:00
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {segment.duration || 5} min
-                          </div>
-                        </div>
-
-                        {/* Icon */}
-                        <div className={cn(
-                          'flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center',
-                          segment.type === 'question' && 'bg-purple-500/20 text-purple-400',
-                          segment.type === 'transition' && 'bg-teal-500/20 text-teal-400',
-                          segment.type === 'milestone' && 'bg-green-500/20 text-green-400',
-                          segment.type === 'topic' && 'bg-blue-500/20 text-blue-400'
-                        )}>
-                          <Icon className="h-5 w-5" />
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-foreground truncate">
-                            {segment.label}
-                          </h4>
-                          {segment.description && (
-                            <p className="text-sm text-muted-foreground truncate mt-0.5">
-                              {segment.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2 mt-2">
-                            <Badge 
-                              variant="outline" 
-                              className={cn('text-xs capitalize', `badge-${segment.type}`)}
-                            >
-                              {segment.type}
-                            </Badge>
-                            {segment.emotionalTone && (
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <div className={cn('w-2 h-2 rounded-full', getEmotionalColor(segment.emotionalTone))} />
-                                <span className="capitalize">{segment.emotionalTone}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Emotional Arc Indicator */}
-                        <div className="flex-shrink-0 w-20 h-12">
-                          <svg viewBox="0 0 80 48" className="w-full h-full">
-                            <motion.path
-                              initial={{ pathLength: 0 }}
-                              animate={{ pathLength: 1 }}
-                              transition={{ delay: 0.5 + index * 0.1, duration: 0.5 }}
-                              d={getArcPath(segment.emotionalTone, index, segments.length)}
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              className={cn(
-                                segment.emotionalTone === 'positive' && 'text-green-500',
-                                segment.emotionalTone === 'negative' && 'text-red-500',
-                                segment.emotionalTone === 'building' && 'text-amber-500',
-                                segment.emotionalTone === 'resolving' && 'text-blue-500',
-                                !segment.emotionalTone && 'text-muted-foreground'
-                              )}
-                            />
-                          </svg>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={segmentsWithTime.map(s => s.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-3">
+                      {segmentsWithTime.map((segment, index) => (
+                        <SortableSegment
+                          key={segment.id}
+                          segment={segment}
+                          index={index}
+                          segmentsLength={segments.length}
+                          selectedSegmentId={selectedSegmentId}
+                          onSelect={setSelectedSegmentId}
+                          onEdit={handleEditSegment}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               </div>
             )}
           </div>
         </Card>
       </AnimatedCard>
+
+      {/* Node Details Panel */}
+      <NodeDetailsPanel
+        node={editingNode}
+        open={isPanelOpen}
+        onOpenChange={setIsPanelOpen}
+        onSave={handleSaveNode}
+        onDelete={handleDeleteNode}
+      />
     </div>
   );
 };
 
 // Generate SVG path for emotional arc visualization
-const getArcPath = (tone?: string, index?: number, total?: number): string => {
+const getArcPath = (tone?: string): string => {
   const baseline = 24;
   const amplitude = 16;
   

@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ConversationNode } from '@/types/conversation';
 import { cn } from '@/lib/utils';
 import { AnimatedCard, FadeInSection } from '@/components/ui/animated-card';
+import NodeDetailsPanel from '@/components/builder/NodeDetailsPanel';
 import {
   ChevronLeft,
   ChevronRight,
@@ -33,6 +34,7 @@ const CarouselView = ({ nodes, onNodesUpdate }: CarouselViewProps) => {
   const [isPresenting, setIsPresenting] = useState(false);
   const [editingNotes, setEditingNotes] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const slides = nodes[0]?.children || [];
@@ -104,6 +106,38 @@ const CarouselView = ({ nodes, onNodesUpdate }: CarouselViewProps) => {
     if (position === 'after') {
       setCurrentSlide(insertIndex);
     }
+  };
+
+  const handleEditSlide = () => {
+    if (currentSlideData) {
+      setIsPanelOpen(true);
+    }
+  };
+
+  const handleSaveNode = (nodeId: string, updates: Partial<ConversationNode>) => {
+    if (!nodes[0]) return;
+    const updatedChildren = slides.map(s =>
+      s.id === nodeId ? { ...s, ...updates } : s
+    );
+    onNodesUpdate([{ ...nodes[0], children: updatedChildren }]);
+  };
+
+  const handleDeleteNode = (nodeId: string) => {
+    if (!nodes[0]) return;
+    const updatedChildren = slides.filter(s => s.id !== nodeId);
+    onNodesUpdate([{ ...nodes[0], children: updatedChildren }]);
+    setIsPanelOpen(false);
+    if (currentSlide >= updatedChildren.length && updatedChildren.length > 0) {
+      setCurrentSlide(updatedChildren.length - 1);
+    }
+  };
+
+  const handleNotesChange = (value: string) => {
+    if (!nodes[0] || !currentSlideData) return;
+    const updatedChildren = slides.map((s, i) =>
+      i === currentSlide ? { ...s, speakerNotes: value } : s
+    );
+    onNodesUpdate([{ ...nodes[0], children: updatedChildren }]);
   };
 
   // Calculate cumulative duration
@@ -247,6 +281,15 @@ const CarouselView = ({ nodes, onNodesUpdate }: CarouselViewProps) => {
                           <span>{currentSlideData.duration} minutes</span>
                         </div>
                       )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-6"
+                        onClick={handleEditSlide}
+                      >
+                        <Edit3 className="h-4 w-4 mr-2" />
+                        Edit Slide
+                      </Button>
                     </motion.div>
                   </AnimatePresence>
 
@@ -354,6 +397,7 @@ const CarouselView = ({ nodes, onNodesUpdate }: CarouselViewProps) => {
                   className="flex-1 resize-none bg-background/50"
                   placeholder="Add your speaker notes here..."
                   value={currentSlideData?.speakerNotes || ''}
+                  onChange={(e) => handleNotesChange(e.target.value)}
                 />
               ) : (
                 <div className="flex-1 overflow-auto custom-scrollbar">
@@ -413,6 +457,15 @@ const CarouselView = ({ nodes, onNodesUpdate }: CarouselViewProps) => {
           </AnimatedCard>
         )}
       </div>
+
+      {/* Node Details Panel */}
+      <NodeDetailsPanel
+        node={currentSlideData || null}
+        open={isPanelOpen}
+        onOpenChange={setIsPanelOpen}
+        onSave={handleSaveNode}
+        onDelete={handleDeleteNode}
+      />
     </div>
   );
 };

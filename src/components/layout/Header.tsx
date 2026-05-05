@@ -19,6 +19,7 @@ import {
   Download,
 } from 'lucide-react';
 import { ConversationType, CONVERSATION_TYPES } from '@/types/conversation';
+import ConversationTypeInsight from '@/components/common/ConversationTypeInsight';
 
 interface HeaderProps {
   title: string;
@@ -51,7 +52,7 @@ const Header = ({
   const IconComponent = currentType ? ICON_MAP[currentType.icon as keyof typeof ICON_MAP] : null;
 
   return (
-    <header className="flex items-center justify-between h-14 px-6 border-b border-border bg-card/50 backdrop-blur-sm">
+    <header className="relative flex items-center justify-between h-14 px-6 border-b border-border bg-card/50 backdrop-blur-sm">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
           {IconComponent && (
@@ -110,6 +111,9 @@ const Header = ({
           </div>
         )}
       </div>
+
+      {/* Conversation Type Guidance */}
+      {conversationType && <ConversationTypeInsight type={conversationType} />}
     </header>
   );
 };
