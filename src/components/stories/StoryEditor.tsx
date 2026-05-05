@@ -99,6 +99,19 @@ const StoryEditor = ({ open, onOpenChange, story, onSave }: StoryEditorProps) =>
             <Input id="date" type="date" value={date} onChange={e => setDate(e.target.value)} />
           </div>
           <div>
+            <Label>Category</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {STORY_CATEGORIES.map(c => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
             <div className="flex items-center justify-between mb-1">
               <Label htmlFor="story">Your Story</Label>
               <VoiceMemoRecorder onTranscriptReady={handleTranscriptReady} />
