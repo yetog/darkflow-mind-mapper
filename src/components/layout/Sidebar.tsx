@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import { ViewMode, ConversationType, CONVERSATION_TYPES } from '@/types/conversation';
 
-export type AppSection = 'plan' | 'practice' | 'lessons' | 'dashboard' | 'fear-module' | 'tactics' | 'vocabulary';
+export type AppSection = 'plan' | 'practice' | 'lessons' | 'dashboard' | 'fear-module' | 'tactics' | 'vocabulary' | 'stories';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -98,6 +98,7 @@ const Sidebar = ({
     { id: 'lessons' as AppSection, label: 'Lessons', icon: GraduationCap },
     { id: 'tactics' as AppSection, label: 'Story Tactics', icon: Sparkles },
     { id: 'vocabulary' as AppSection, label: 'Vocabulary', icon: BookText },
+    { id: 'stories' as AppSection, label: 'My Stories', icon: BookOpen },
   ];
 
   return (
