@@ -64,7 +64,7 @@ const ConversationTypeInsight = ({ type }: ConversationTypeInsightProps) => {
     <motion.div
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
-      className="absolute top-full left-0 right-0 z-30"
+      className="absolute top-full left-0 right-0 z-50"
     >
       <button
         onClick={() => setIsExpanded(!isExpanded)}
