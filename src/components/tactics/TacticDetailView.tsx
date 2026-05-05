@@ -16,6 +16,7 @@ import {
   MessageSquare,
   CheckCircle,
 } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { StorytellerTactic, TACTIC_CATEGORIES } from '@/types/tactics';
 import { STORYTELLER_TACTICS } from '@/data/storyteller-tactics';
 import TacticDiagram from './TacticDiagram';
@@ -211,6 +212,39 @@ const TacticDetailView = ({
               </Card>
             )}
           </motion.section>
+
+          {/* Section 2.5: Key Terminology */}
+          {tactic.terminology && tactic.terminology.length > 0 && (
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <FileText className="h-5 w-5 text-cyan-400" />
+                Key Terminology
+              </h2>
+              <div className="space-y-3">
+                {tactic.terminology.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + index * 0.05 }}
+                  >
+                    <Card className="p-4 border-l-4 border-l-cyan-500/50">
+                      <h4 className="font-semibold text-sm text-foreground mb-1">
+                        {item.term}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {item.definition}
+                      </p>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.section>
+          )}
 
           {/* Section 3: How to Apply */}
           <motion.section
