@@ -27,7 +27,7 @@ const BreathingExercise: React.FC<BreathingExerciseProps> = ({
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [currentCycle, setCurrentCycle] = useState(0);
   const [isActive, setIsActive] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const totalCycleTime = inhaleDuration + holdDuration + exhaleDuration;
 
