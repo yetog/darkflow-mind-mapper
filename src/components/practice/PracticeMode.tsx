@@ -42,7 +42,7 @@ const PracticeMode: React.FC<PracticeModeProps> = ({ onClose }) => {
 
   const recorderRef = useRef<AudioRecorder | null>(null);
   const transcriberRef = useRef<SpeechTranscriber | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startTimeRef = useRef<number>(0);
 
   // Check browser support
