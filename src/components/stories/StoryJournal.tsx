@@ -223,5 +223,3 @@ const StoryJournal = () => {
 };
 
 export default StoryJournal;
-
-export default StoryJournal;
