@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import { ViewMode, ConversationType, CONVERSATION_TYPES } from '@/types/conversation';
 
-export type AppSection = 'plan' | 'practice' | 'lessons' | 'dashboard' | 'fear-module' | 'tactics' | 'vocabulary' | 'stories';
+export type AppSection = 'plan' | 'practice' | 'lessons' | 'dashboard' | 'fear-module' | 'tactics' | 'vocabulary' | 'stories' | 'active-lesson';
 
 interface SidebarProps {
   isCollapsed: boolean;

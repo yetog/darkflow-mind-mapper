@@ -15,8 +15,11 @@ import ProgressDashboard from '@/components/progress/ProgressDashboard';
 import LessonsBrowser from '@/components/lessons/LessonsBrowser';
 import FearModule from '@/components/lessons/FearModule';
 import StoryJournal from '@/components/stories/StoryJournal';
+import LessonPlayer from '@/components/lessons/LessonPlayer';
+import { useUserProgress } from '@/hooks/useUserProgress';
 import { ViewMode, ConversationType, ConversationPlan, ConversationNode } from '@/types/conversation';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { toast } from 'sonner';
 
 const ConvoFlowApp = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -25,7 +28,9 @@ const ConvoFlowApp = () => {
   const [showCoach, setShowCoach] = useState(false);
   const [showVoiceCoach, setShowVoiceCoach] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
-  
+  const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
+  const { progress, addSession } = useUserProgress();
+
   // Current plan state
   const [currentPlan, setCurrentPlan] = useState<ConversationPlan>({
     id: 'demo-plan',
@@ -133,23 +138,85 @@ const ConvoFlowApp = () => {
   };
 
   const handleApplyTacticToMindMap = (nodes: ConversationNode[]) => {
-    // Add tactic nodes to the current plan
-    setCurrentPlan(prev => ({
-      ...prev,
-      nodes: [...prev.nodes, ...nodes],
-      updatedAt: new Date(),
-    }));
+    // Merge tactic steps as children of the existing root node
+    setCurrentPlan(prev => {
+      const existingRoot = prev.nodes[0];
+      if (!existingRoot) {
+        return { ...prev, nodes, updatedAt: new Date() };
+      }
+      const tacticChildren = nodes[0]?.children || [];
+      const updatedRoot: ConversationNode = {
+        ...existingRoot,
+        children: [...(existingRoot.children || []), ...tacticChildren],
+      };
+      return { ...prev, nodes: [updatedRoot, ...prev.nodes.slice(1)], updatedAt: new Date() };
+    });
     setActiveSection('plan');
+  };
+
+  const handleStartLesson = (lessonId: string) => {
+    setActiveLessonId(lessonId);
+    setActiveSection('active-lesson');
+  };
+
+  const handleSave = () => {
+    try {
+      localStorage.setItem('convoflow-current-plan', JSON.stringify(currentPlan));
+      toast.success('Plan saved successfully');
+    } catch {
+      toast.error('Failed to save plan');
+    }
+  };
+
+  const handleExport = () => {
+    try {
+      const blob = new Blob([JSON.stringify(currentPlan, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentPlan.title.replace(/\s+/g, '-').toLowerCase()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('Plan exported');
+    } catch {
+      toast.error('Failed to export plan');
+    }
+  };
+
+  const handleShare = () => {
+    const children = currentPlan.nodes[0]?.children || [];
+    const outline = children.map((n, i) => `${i + 1}. ${n.label}${n.description ? ` — ${n.description}` : ''}`).join('\n');
+    const text = `${currentPlan.title}\nType: ${currentPlan.type}\n\n${outline}`;
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success('Plan outline copied to clipboard');
+    }).catch(() => {
+      toast.error('Failed to copy to clipboard');
+    });
   };
 
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'dashboard':
-        return <ProgressDashboard onStartPractice={() => setActiveSection('practice')} />;
+        return (
+          <ProgressDashboard
+            onStartPractice={() => setActiveSection('practice')}
+            onOpenLessons={() => setActiveSection('lessons')}
+            onOpenTactics={() => setActiveSection('tactics')}
+            progress={progress}
+          />
+        );
       case 'practice':
-        return <PracticeMode />;
+        return <PracticeMode onSessionComplete={addSession} />;
       case 'lessons':
-        return <LessonsBrowser onOpenFearModule={handleOpenFearModule} />;
+        return <LessonsBrowser onOpenFearModule={handleOpenFearModule} onStartLesson={handleStartLesson} />;
+      case 'active-lesson':
+        return activeLessonId ? (
+          <LessonPlayer
+            lessonId={activeLessonId}
+            onClose={() => setActiveSection('lessons')}
+            onStartPractice={() => setActiveSection('practice')}
+          />
+        ) : null;
       case 'fear-module':
         return <FearModule />;
       case 'tactics':
@@ -206,6 +273,7 @@ const ConvoFlowApp = () => {
       case 'practice':
         return 'Practice Mode';
       case 'lessons':
+      case 'active-lesson':
         return 'Lessons';
       case 'fear-module':
         return 'Overcome Fear';
@@ -252,6 +320,9 @@ const ConvoFlowApp = () => {
           title={getSectionTitle()}
           conversationType={activeSection === 'plan' ? currentPlan.type : undefined}
           onTypeChange={activeSection === 'plan' ? handleTypeChange : undefined}
+          onSave={activeSection === 'plan' ? handleSave : undefined}
+          onShare={activeSection === 'plan' ? handleShare : undefined}
+          onExport={activeSection === 'plan' ? handleExport : undefined}
         />
 
         {/* View Area with Page Transitions */}
