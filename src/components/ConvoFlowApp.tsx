@@ -14,6 +14,7 @@ import PracticeMode from '@/components/practice/PracticeMode';
 import ProgressDashboard from '@/components/progress/ProgressDashboard';
 import LessonsBrowser from '@/components/lessons/LessonsBrowser';
 import FearModule from '@/components/lessons/FearModule';
+import StoryJournal from '@/components/stories/StoryJournal';
 import { ViewMode, ConversationType, ConversationPlan, ConversationNode } from '@/types/conversation';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 
@@ -161,6 +162,8 @@ const ConvoFlowApp = () => {
         );
       case 'vocabulary':
         return <VocabBrowser />;
+      case 'stories':
+        return <StoryJournal />;
       case 'plan':
       default:
         return renderActiveView();
@@ -210,6 +213,8 @@ const ConvoFlowApp = () => {
         return 'Story Tactics';
       case 'vocabulary':
         return 'Vocabulary & Phrases';
+      case 'stories':
+        return 'My Stories';
       case 'plan':
       default:
         return currentPlan.title;

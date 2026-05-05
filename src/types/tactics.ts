@@ -39,6 +39,12 @@ export interface StorytellerTactic {
   icon?: string;
   framework?: TacticFramework;
   exampleStory?: TacticExampleStory;
+  terminology?: TacticTerminology[];
+}
+
+export interface TacticTerminology {
+  term: string;
+  definition: string;
 }
 
 export interface TacticCategoryInfo {
