@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Plus } from 'lucide-react';
 import { PersonalStory } from '@/types/stories';
+import { STORY_CATEGORIES } from '@/types/stories';
 import { STORYTELLER_TACTICS } from '@/data/storyteller-tactics';
 import VoiceMemoRecorder from './VoiceMemoRecorder';
 
