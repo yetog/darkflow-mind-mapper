@@ -1,66 +1,112 @@
 
-# Fix Non-AI Functional Gaps
+# Plan: Story Visualizations, Clarity Lessons, and IONOS Cloud Architecture
 
-Skipping: AI Chat Builder, AI Coach, database persistence (those are AI/backend enhancements for later).
+## 1. Clarity Lessons Section (Placeholder, pending PDF)
 
-## 1. Lesson Viewer — Clicking a lesson opens nothing
+Since the PDF will be uploaded later, we'll prepare the structure now:
 
-**Problem**: `onStartLesson` is passed to `LessonsBrowser` but never connected in `ConvoFlowApp`. No lesson content view exists.
+- Add `clarity` category lessons to `src/data/lessons.ts` with 3-4 placeholder lessons (e.g., "Articulate Your Message", "Simplify Complex Ideas", "The Clarity Checklist") with placeholder exercises
+- Add a `clarity-course` to `LESSON_COURSES`
+- The `clarity` category already exists in `LESSON_CATEGORIES` with label/description/color, so no type changes needed
+- Once you upload the PDF, we'll parse it and replace the placeholder content with real exercises and instructions
 
-**Fix**: Create a `LessonPlayer` component that displays exercises step-by-step (instruction, tips, evaluation criteria). Wire it in `ConvoFlowApp` with a new `active-lesson` section state that receives the lesson ID.
+## 2. Story Journal Visualization Overhaul
 
-- Exercise types: `breathing` shows the existing `BreathingExercise` component, `prompt`/`reading`/`timed-speech` show the instruction + a timer + a "Record" button linking to Practice Mode, `articulation` shows the text to read aloud.
-- Navigation: Next/Previous exercise buttons, progress bar across exercises.
+### 2a. Category System
 
-## 2. Dashboard Stats — Hardcoded mock data
+Add a `category` field to the `PersonalStory` type (e.g., "work", "personal", "presentation", "anecdote", or custom). Update the StoryEditor with a category dropdown/input. Update StoryJournal to support folder-style grouping by category.
 
-**Problem**: `mockProgress` has static numbers (145 min, 23 speeches, etc.).
+**Files:** `src/types/stories.ts`, `src/components/stories/StoryEditor.tsx`, `src/components/stories/StoryJournal.tsx`
 
-**Fix**: Create a `useUserProgress` hook that reads from localStorage:
-- Track practice sessions (duration, date, scores) whenever PracticeMode completes an analysis
-- Derive total practice time, speeches analyzed, streak, level/XP from stored sessions
-- Dashboard reads from this hook instead of `mockProgress`
+### 2b. View Switcher with Three Modes
 
-## 3. Export / Save / Share — Buttons exist, no implementation
+Add a view toggle to StoryJournal header (Cards / Timeline / Map):
 
-**Problem**: Header has Save/Share/Export buttons but they're not wired in `ConvoFlowApp` (no callbacks passed).
+- **Cards view** (existing) -- the current grid of StoryCards, now filterable by category
+- **Timeline view** -- a vertical chronological timeline with date markers, story previews, and category color indicators along the axis
+- **Story Map view** -- a visual network using React Flow where each story is a node, and edges connect stories that share tags or the same linked tactic. Clusters form naturally by tag similarity.
 
-**Fix**:
-- **Save**: Persist current plan to localStorage (auto-save on changes + manual save with toast)
-- **Export**: Download plan as JSON file (`plan.json`) and optionally a markdown outline
-- **Share**: Copy a shareable text summary to clipboard (no backend needed)
-- Wire these callbacks from `ConvoFlowApp` through to `Header`
+**New files:**
+- `src/components/stories/StoryTimeline.tsx` -- vertical date-ordered timeline with month/year groupings
+- `src/components/stories/StoryMap.tsx` -- React Flow-based network graph of stories connected by shared tags
 
-## 4. Tactic "Apply to Plan" — Adds to root instead of merging
+**Modified:** `src/components/stories/StoryJournal.tsx` (view switcher UI and state)
 
-**Problem**: `handleApplyTacticToMindMap` in `ConvoFlowApp` does `[...prev.nodes, ...nodes]` which adds a second root node.
+## 3. IONOS Cloud Integration Architecture
 
-**Fix**: Merge tactic steps as children of the existing root node instead:
+This is the backend/infrastructure layer. Here's the architecture and what we need from you:
+
+### Storage Layer (IONOS S3-Compatible Object Storage)
+
+IONOS provides S3-compatible object storage. We'll create an Edge Function that proxies requests to IONOS S3, handling:
+- Voice memo audio file uploads
+- Exported plan JSON/Markdown files
+- User data backup/sync
+
+**What we need from you:**
+- IONOS S3 endpoint URL (e.g., `s3-eu-central-1.ionoscloud.com`)
+- Access Key ID
+- Secret Access Key
+- Bucket name(s) you want to use
+
+### Auth Layer (SSO)
+
+For multi-user auth that works across local and cloud devices, we recommend **SAML SSO** via Lovable Cloud's built-in auth, which supports:
+- Email/password as baseline
+- SAML SSO for enterprise/organizational login (works with IONOS or any IdP)
+
+LDAP is not directly supported by Lovable Cloud, but most LDAP directories can federate through a SAML bridge (e.g., Keycloak, Authentik, or Authelia in front of your LDAP). If you're already running one of these on your IONOS infrastructure, we can configure SAML SSO to point at it.
+
+**What we need from you:**
+- Which IdP are you running (Keycloak, Authentik, or something else)?
+- Or do you want us to set up email/password + Google OAuth first and add SSO later?
+
+### Data Persistence Architecture
+
+Once auth and storage are in place, we'll migrate from `localStorage` to a proper backend:
+
+```text
+Browser App
+  |
+  +-- Lovable Cloud Auth (SAML SSO / email+password)
+  |
+  +-- Lovable Cloud DB (Supabase/Postgres)
+  |     +-- user profiles, stories, plans, progress, vocabulary
+  |     +-- RLS policies per user
+  |
+  +-- Edge Functions --> IONOS S3
+        +-- voice memos, audio files, large exports
 ```
-children: [...(existingRoot.children || []), ...tacticRootNode.children]
-```
 
-## 5. Conversation Type Insight — Z-index issue
+### Implementation Order
 
-**Problem**: The expanded tips panel uses `z-30` but the `main` content area can render on top.
+1. Enable Lovable Cloud (database + auth)
+2. Create tables for stories, plans, progress, vocabulary with RLS
+3. Add auth (email/password first, SSO when IdP details are provided)
+4. Create Edge Function for IONOS S3 proxy (once credentials are provided)
+5. Migrate localStorage reads/writes to Supabase client calls
 
-**Fix**: Increase to `z-50` and ensure the header has `position: relative` with higher stacking context.
+---
 
-## 6. Practice Mode — Analysis is real but results aren't persisted
+## Immediate Implementation (Steps 1-2 above)
 
-**Problem**: The speech analyzer actually works (not mocked!), analyzing transcript for pace, fillers, confidence, etc. But results disappear after leaving the page.
+What we'll build right now without waiting for credentials:
 
-**Fix**: Store completed practice sessions in localStorage via the `useUserProgress` hook (same as item 2). This also feeds Dashboard stats.
+1. Add clarity lesson placeholders to lessons data
+2. Add category field to stories
+3. Build Timeline and Story Map visualization components
+4. Add view switcher to Story Journal
 
-## Files to Create
-- `src/components/lessons/LessonPlayer.tsx` — Step-by-step exercise viewer
-- `src/hooks/useUserProgress.ts` — localStorage-based progress tracking
+Steps 3-5 of the IONOS integration require your credentials and IdP details, which we'll implement once provided.
 
-## Files to Modify
-- `src/components/ConvoFlowApp.tsx` — Wire lesson player, save/export/share, fix tactic merge
-- `src/components/layout/Sidebar.tsx` — Add `active-lesson` section type
-- `src/components/progress/ProgressDashboard.tsx` — Use `useUserProgress` hook
-- `src/components/practice/PracticeMode.tsx` — Save completed sessions
-- `src/components/layout/Header.tsx` — Z-index fix
-- `src/components/common/ConversationTypeInsight.tsx` — Z-index fix
-- `src/components/lessons/LessonsBrowser.tsx` — Wire `onStartLesson` properly
+### Technical Details
+
+| Change | Files |
+|--------|-------|
+| Clarity lessons | `src/data/lessons.ts` |
+| Story category type | `src/types/stories.ts` |
+| Story editor category field | `src/components/stories/StoryEditor.tsx` |
+| Story timeline view | `src/components/stories/StoryTimeline.tsx` (new) |
+| Story map view | `src/components/stories/StoryMap.tsx` (new) |
+| View switcher + category filter | `src/components/stories/StoryJournal.tsx` |
+| Story card category badge | `src/components/stories/StoryCard.tsx` |
