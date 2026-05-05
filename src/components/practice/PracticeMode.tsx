@@ -22,15 +22,17 @@ import {
 import { AudioRecorder, isRecordingSupported } from '@/services/audio-recorder';
 import { SpeechTranscriber, isTranscriptionSupported } from '@/services/transcription';
 import { analyzeSpeech } from '@/services/speech-analyzer';
+import { PracticeSession } from '@/hooks/useUserProgress';
 import { RecordingState, SpeechAnalysis } from '@/types/speech-analysis';
 import AudioVisualizer from './AudioVisualizer';
 import AnalysisResults from './AnalysisResults';
 
 interface PracticeModeProps {
   onClose?: () => void;
+  onSessionComplete?: (session: Omit<PracticeSession, 'id' | 'date'>) => void;
 }
 
-const PracticeMode: React.FC<PracticeModeProps> = ({ onClose }) => {
+const PracticeMode: React.FC<PracticeModeProps> = ({ onClose, onSessionComplete }) => {
   const [recordingState, setRecordingState] = useState<RecordingState>('idle');
   const [duration, setDuration] = useState(0);
   const [audioLevel, setAudioLevel] = useState(0);
@@ -124,6 +126,23 @@ const PracticeMode: React.FC<PracticeModeProps> = ({ onClose }) => {
       // Analyze the speech
       const speechAnalysis = analyzeSpeech(finalTranscript, duration, audioLevel);
       setAnalysis(speechAnalysis);
+
+      // Persist session
+      if (onSessionComplete) {
+        onSessionComplete({
+          duration,
+          overallScore: speechAnalysis.overallScore,
+          wordCount: speechAnalysis.wordCount,
+          metrics: {
+            pace: speechAnalysis.metrics.pace.score,
+            fillerWords: speechAnalysis.metrics.fillerWords.score,
+            energy: speechAnalysis.metrics.energy.score,
+            confidence: speechAnalysis.metrics.confidence.score,
+            pausing: speechAnalysis.metrics.pausing.score,
+            conciseness: speechAnalysis.metrics.conciseness.score,
+          },
+        });
+      }
 
       setRecordingState('complete');
     } catch (err) {
