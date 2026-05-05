@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,36 +24,34 @@ import {
 import { USER_LEVELS } from '@/types/progress';
 import { getRandomTip, ExpertTip } from '@/data/expert-tips';
 import ExpertTipCard from '@/components/common/ExpertTipCard';
+import { UserProgress } from '@/hooks/useUserProgress';
+import DynamicIcon from '@/components/ui/dynamic-icon';
 
 interface ProgressDashboardProps {
   onStartPractice?: () => void;
   onOpenLessons?: () => void;
   onOpenTactics?: () => void;
+  progress?: UserProgress;
 }
-
-// Mock data for demonstration
-const mockProgress = {
-  totalPracticeTime: 145,
-  speechesAnalyzed: 23,
-  currentStreak: 5,
-  level: {
-    current: 3,
-    title: 'Confident Communicator',
-    xp: 450,
-    xpToNextLevel: 600,
-  },
-  topSkillsToImprove: [
-    { name: 'Confidence', score: 70, icon: Target },
-    { name: 'Pausing', score: 72, icon: Clock },
-  ],
-};
 
 const ProgressDashboard: React.FC<ProgressDashboardProps> = ({ 
   onStartPractice,
   onOpenLessons,
   onOpenTactics,
+  progress: externalProgress,
 }) => {
-  const progress = mockProgress;
+  const progress = useMemo(() => externalProgress || {
+    totalPracticeTime: 0,
+    speechesAnalyzed: 0,
+    currentStreak: 0,
+    level: { current: 1, title: 'Beginner Speaker', xp: 0, xpToNextLevel: 100 },
+    topSkillsToImprove: [
+      { name: 'Confidence', score: 0, iconName: 'Target' },
+      { name: 'Pausing', score: 0, iconName: 'Clock' },
+    ],
+    sessions: [],
+  }, [externalProgress]);
+
   const levelProgress = (progress.level.xp / progress.level.xpToNextLevel) * 100;
   const [currentTip, setCurrentTip] = useState<ExpertTip>(() => getRandomTip());
   const [tipExpanded, setTipExpanded] = useState(false);
@@ -132,7 +130,10 @@ const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {progress.topSkillsToImprove.map((skill, idx) => (
+               {progress.topSkillsToImprove.map((skill, idx) => {
+                const IconMap: Record<string, React.ComponentType<any>> = { Target, Clock };
+                const SkillIcon = IconMap[skill.iconName || ''] || Target;
+                return (
                 <motion.div 
                   key={skill.name}
                   className="flex items-center gap-3"
@@ -141,7 +142,7 @@ const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
                   transition={{ delay: 0.4 + idx * 0.1 }}
                 >
                   <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
-                    <skill.icon className="h-4 w-4 text-muted-foreground" />
+                    <SkillIcon className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
@@ -156,7 +157,8 @@ const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
                     <AnimatedProgress value={skill.score} delay={0.5 + idx * 0.1} />
                   </div>
                 </motion.div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
         </AnimatedCard>
