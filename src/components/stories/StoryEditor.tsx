@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { X, Plus } from 'lucide-react';
 import { PersonalStory } from '@/types/stories';
 import { STORYTELLER_TACTICS } from '@/data/storyteller-tactics';
+import VoiceMemoRecorder from './VoiceMemoRecorder';
 
 interface StoryEditorProps {
   open: boolean;
@@ -61,6 +62,10 @@ const StoryEditor = ({ open, onOpenChange, story, onSave }: StoryEditorProps) =>
     }
   };
 
+  const handleTranscriptReady = (transcript: string) => {
+    setStoryText(prev => prev ? prev + '\n\n' + transcript : transcript);
+  };
+
   const handleSave = () => {
     if (!title.trim() || !storyText.trim()) return;
     onSave({
@@ -90,8 +95,14 @@ const StoryEditor = ({ open, onOpenChange, story, onSave }: StoryEditorProps) =>
             <Input id="date" type="date" value={date} onChange={e => setDate(e.target.value)} />
           </div>
           <div>
-            <Label htmlFor="story">Your Story</Label>
-            <Textarea id="story" value={storyText} onChange={e => setStoryText(e.target.value)} placeholder="Write about what happened..." rows={5} />
+            <div className="flex items-center justify-between mb-1">
+              <Label htmlFor="story">Your Story</Label>
+              <VoiceMemoRecorder onTranscriptReady={handleTranscriptReady} />
+            </div>
+            <Textarea id="story" value={storyText} onChange={e => setStoryText(e.target.value)} placeholder="Write about what happened, or use the voice memo button above..." rows={6} />
+            <p className="text-xs text-muted-foreground mt-1">
+              Type your story or record a voice memo. Voice transcriptions appear here for editing.
+            </p>
           </div>
           <div>
             <Label>Tags</Label>
