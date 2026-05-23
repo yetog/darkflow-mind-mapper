@@ -1,6 +1,20 @@
 
 # Plan: Story Visualizations, Clarity Lessons, and IONOS Cloud Architecture
 
+## Status Update
+
+**Built now:**
+
+1. **Clarity Lessons** — 4 placeholder lessons (Articulate Your Message, Simplify Complex Ideas, The Clarity Checklist, Structured Thinking Out Loud) with a full course. Upload the PDF anytime and we'll replace the placeholders with real content.
+2. **Story Categories** — Stories now have a category field (Personal, Work, Presentation, Anecdote, Lesson Learned, Inspiration) with filtering in the journal header.
+3. **Three Story Views** — Cards (existing grid), Timeline (chronological with month groupings and color-coded dots), and Story Map (React Flow network where stories connect by shared tags). Switch via the view toggle.
+
+**IONOS Cloud — needed from user to proceed:**
+
+- S3 endpoint URL, Access Key ID, Secret Access Key, and bucket name(s)
+- Which IdP they're running (Keycloak, Authentik, etc.) for SAML SSO — or whether to start with email/password + Google OAuth first
+- Once provided, enable Lovable Cloud and wire up the full persistence + auth layer
+
 ## Known Issue: Scrolling Mechanics (TODO)
 
 Scrolling is broken or constrained in several areas, on both mobile (428px viewport) and desktop:
