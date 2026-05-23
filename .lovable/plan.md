@@ -1,6 +1,20 @@
 
 # Plan: Story Visualizations, Clarity Lessons, and IONOS Cloud Architecture
 
+## Known Issue: Scrolling Mechanics (TODO)
+
+Scrolling is broken or constrained in several areas, on both mobile (428px viewport) and desktop:
+
+- **Story Map view** (`StoryMap.tsx`) — fixed `h-[600px]` ReactFlow container traps wheel/touch events; on mobile the canvas overflows horizontally with no pan affordance and the parent ScrollArea can't scroll past it.
+- **Timeline view** (`StoryTimeline.tsx`) — long lists inside the ScrollArea viewport occasionally don't scroll on touch because nested `motion.div` transforms intercept gestures.
+- **StoryJournal header** — filter badge row wraps and pushes content down, but the outer ScrollArea height calc (`flex-1`) doesn't always recompute on mobile, leaving the bottom of the list inaccessible.
+- **Lessons / LessonPlayer** — modal/sheet content exceeds viewport height with no inner scroll container; bottom CTAs unreachable on mobile.
+- **Tactic Detail / Comparison views** — `overflow-hidden` on parent cards clips long content; need `overflow-y-auto` with explicit max-height.
+- **MindMap / Builder canvas** — React Flow consumes all touch events; need a "scroll page / pan canvas" toggle for mobile, or use two-finger pan.
+- **General pattern** — many panels rely on `h-full` inside non-flex parents, collapsing to 0 height on mobile. Audit for `min-h-0` on flex children and replace fixed `h-[Npx]` with `min-h-[Npx] max-h-[80vh]` patterns.
+
+**Fix approach when we tackle this:** standardize on a single scroll strategy per route (outer ScrollArea OR native body scroll, not both), add `touch-action: pan-y` to non-canvas regions, gate React Flow gestures behind an explicit interaction toggle on touch devices, and add `min-h-0` to all `flex-1` scroll containers.
+
 ## 1. Clarity Lessons Section (Placeholder, pending PDF)
 
 Since the PDF will be uploaded later, we'll prepare the structure now:
